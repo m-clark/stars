@@ -23,12 +23,6 @@ library(plotly); library(lazerhawk); library(tidyverse)
 ```
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, R.options=list(width=120), fig.align = 'center', fig.width=5, fig.height=4)
-#rmarkdown::tufte_handout
-library(magrittr); library(dplyr); library(tidyr)
-# source('ggClean.R')
-```
 
 # A motivating example
 
@@ -55,18 +49,11 @@ d = data.frame(x,y)
 
 Let's take a look at it visually.
 
-```{r simDataPlotold, echo=F, eval=F}
-library(rbokeh)
-figure(width=700, theme=bk_ggplot_theme, tools=NULL) %>% 
-  ly_points(x, y,line_alpha=0, color='black', size=8)
-```
-
 ```{r simDataPlot, echo=F}
+black5 = alpha('black', .05)   # apparently will only work with I(black25)
 black25 = alpha('black', .25)
-black5 = alpha('black', .5)
-
 plot_ly(width=700, data=d) %>% 
-  add_markers(~x, ~y, marker=list(color=black5)) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5)) %>% 
   theme_plotly() %>% 
   layout()
 ```
@@ -86,7 +73,7 @@ fits = sapply(seq(3,15, 3), function(p) fitted(lm(y~poly(x,p)))) %>%
 
 
 plot_ly(width=700, data=d) %>% 
-  add_markers(~x, ~y, marker=list(color=black25), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.1), showlegend=F) %>% 
   add_lines(~x, ~fits, color=~polynomial, data=fits) %>% 
   theme_plotly() %>% 
   layout()
@@ -106,7 +93,7 @@ fits = d %>%
 
 
 plot_ly(fits, width='75%') %>% 
-  add_markers(~x, ~y, marker=list(color=black25), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.1), showlegend=F) %>% 
   add_lines(~x, ~fit, color=I('#8B000080'), showlegend=F) %>% 
   theme_plotly() %>% 
   layout()
@@ -150,53 +137,40 @@ d2 = data.frame(x, bs) %>%
   gather(key=bs, value=bsfunc, -x)
 
 plot_ly(d, width='75%') %>% 
-  add_markers(~x, ~y, marker=list(color=black25), showlegend=F) %>% 
-  add_lines(~x, ~bsfunc, color=~bs, showlegend=F, data=arrange(d2,x)) %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.25), showlegend=F) %>% 
+  add_lines(~x, ~bsfunc, color=~bs, colors='Set3', showlegend=F, data=arrange(d2,x)) %>% # colorscale ignored
   theme_plotly() %>% 
   layout()
 ```
 
 If we multiply each basis by it's corresponding regression coefficient we can start to interpret the result. 
 
-```{r csbsScaledPlot, echo=c(2:4,6:7), eval=-1}
+```{r csbsScaledPlotData, echo=c(2:4,6:7), eval=-1}
 # bs = as.matrix(data.frame(int=1, bs))
 lmMod = lm(y~.-1, bs)
 bscoefs = coef(lmMod)
 bsScaled = sweep(bs, 2, bscoefs,`*`)
 colnames(bsScaled) = c('int', paste0('X', 1:10))
-head(bsScaled)
-bscoefs
+# head(bsScaled)
+round(bscoefs, 3)
 
 d3 = data.frame(x, y, bsScaled) %>% 
   gather(key=bs, value=bsfunc, -x, -y, factor_key = T) %>% 
   dplyr::filter(bsfunc >= min(y) & bsfunc <= max(y))
+```
 
-
-# figure(d3, width=700, theme=bk_ggplot_theme, tools=NULL) %>%
-#   ly_points(x, y,color='black', size=8, alpha=.5, line_alpha=0, data=d) %>% 
-#   ly_lines(x, bsfunc, color=bs, data=arrange(d3, x), width=2) %>% 
-#   theme_legend(border_line_alpha=0, label_width=5,
-#                label_standoff=5, legend_padding=1,
-#                label_text_font_size='6pt')
-
-# group_by(d3, bs) %>% 
-# plot_ly(d, width='75%') %>%
-#   # add_trace(~x, ~bsfunc, color=~bs, type='scatter', showlegend=F) %>%
-#   add_markers(~x, ~y, color=~xcut, marker = list(color = RColorBrewer::brewer.pal(10, "Set3")), showlegend=T) %>% #RColorBrewer::brewer.pal(N, "Set3")
-#   # add_lines(~x, ~bsfunc, color=~bs, showlegend=F, data=d3) %>%
-#   theme_plotly() %>%
-#   layout()
-
+```{r csbsScaledPlot, echo=F}
 # NOTE: you've tried all the easy ways and plotly won't color lines and points the same; it will either do all one color or pick a different scheme.
-# but if you don't care about the markers, just make them black, but use more alpha because there are replicates due to the melt
+# but if you don't care about the markers, just make them black, but use more transparency, because there are replicates due to the data melt.
 cs = RColorBrewer::brewer.pal(nlevels(d$xcut), 'Set3')
-d3 %>%
-  group_by(bs) %>% 
-  plot_ly(width='75%') %>%
-  add_markers(~x, ~y, color=I('rgba(0,0,0,.02)'), colors=cs, showlegend=T) %>% #RColorBrewer::brewer.pal(N, "Set3")
-  add_lines(~x, ~bsfunc, color=~bs, colors=cs, showlegend=F) %>% 
-  theme_plotly() %>% 
-  layout()
+# KEEP this version. Dupes Fahrmeier, but not as desirable in my opinion
+# d3 %>%
+#   group_by(bs) %>% 
+#   plot_ly(width='75%') %>%
+#   add_markers(~x, ~y, color=I('rgba(0,0,0,.02)'), colors=cs, showlegend=T) %>% #RColorBrewer::brewer.pal(N, "Set3")
+#   add_lines(~x, ~bsfunc, color=~bs, colors=cs, showlegend=F) %>% 
+#   theme_plotly() %>% 
+#   layout()
 
 # NOTE: if you do want the colors the same, try this
 d3 = bsScaled %>% 
@@ -215,12 +189,12 @@ plot_ly(width='75%') %>%
   add_lines(~x, ~X9, color=~xcut, data=filter(d3, xcut=='[0.8,0.9)'), showlegend=F) %>%
   add_lines(~x, ~X10, color=~xcut, data=filter(d3, xcut=='[0.9,1)'), showlegend=F) %>%
   add_markers(x=0, y=bscoefs[1], color=I('salmon'), size=I(20), alpha=.5, showlegend=F) %>% 
-  add_lines(x=~x, y=0, color=I(black25), data=d3, showlegend=F) %>%
+  add_lines(x=~x, y=0, color=I(alpha('black', .25)), data=d3, showlegend=F) %>%
   theme_plotly() %>% 
   layout()
 ```
 
-In the plot above, the blue dot represents the global constant ($\gamma_1$, i.e. our intercept, in our formula above). We have a decreasing function starting from that point onward (<span class="" style="color:"#8DD3C7"">line</span>). Between .1 and .2 (red line), the coefficient is negative, furthering the already decreasing slope (i.e. steeper downward). The fourth coefficient is positive, which means that between .2 and .3 our decreasing trend is lessening.  Thus our coefficients $j$ tell us the change in slope that occurs at knot $\kappa_{j-1}$.  If this gets you to thinking about interactions in more common model settings, you're on the right track (e.g. adding a quadratic term is just letting x have an interaction with itself; same thing is going on here).
+In the plot above, the initial dot represents the global constant ($\gamma_1$, i.e. our intercept, in our formula above). We have a decreasing function starting from that point onward (<span class="" style="color:'#FFFFB3'">line</span>). Between .1 and .2 (<span class="" style="color:'#BEBADA'">line</span>), the coefficient is negative again, furthering the already decreasing slope (i.e. steeper downward). The fourth coefficient is positive, which means that between .2 and .3 our decreasing trend is lessening (<span class="" style="color:'#FB8072'">line</span>).  Thus our coefficients $j$ tell us the change in slope that occurs at the previous knot $\kappa_{j-1}$.  The length's of the line above reflect the size of the coefficient, i.e. how dramatic the change is. If this gets you to thinking about interactions in more common model settings, you're on the right track (e.g. adding a quadratic term is just letting x have an interaction with itself; same thing is going on here).
 
 Finally if plot the sum of the basis functions, which is the same as taking our fitted values from a regression on the basis expansion of X, we get the following fit to the data. And we can see the trend our previous plot suggested.
 
@@ -248,7 +222,7 @@ filter(plotData, xcut!='Int') %>%
 ```
 
 
-One of the most common approaches uses a cubic spline fit. So we'll change our polynomial degree to 3.  Seems to be fitting the data well.
+One of the most common approaches uses a cubic spline fit. So we'll change our polynomial degree from 1 to 3.  Seems to be fitting the data well.
 
 ```{r csFitPlotDegree3, echo=FALSE}
 l = 3
