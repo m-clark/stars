@@ -194,7 +194,7 @@ plot_ly(width='75%') %>%
   layout()
 ```
 
-In the plot above, the initial dot represents the global constant ($\gamma_1$, i.e. our intercept, in our formula above). We have a decreasing function starting from that point onward (<span class="" style="color:'#FFFFB3'">line</span>). Between .1 and .2 (<span class="" style="color:'#BEBADA'">line</span>), the coefficient is negative again, furthering the already decreasing slope (i.e. steeper downward). The fourth coefficient is positive, which means that between .2 and .3 our decreasing trend is lessening (<span class="" style="color:'#FB8072'">line</span>).  Thus our coefficients $j$ tell us the change in slope that occurs at the previous knot $\kappa_{j-1}$.  The length's of the line above reflect the size of the coefficient, i.e. how dramatic the change is. If this gets you to thinking about interactions in more common model settings, you're on the right track (e.g. adding a quadratic term is just letting x have an interaction with itself; same thing is going on here).
+In the plot above, the initial dot represents the global constant ($\gamma_1$, i.e. our intercept, in our formula above). We have a decreasing function starting from that point onward (<span style="color:#8DD3C7">line</span>). Between .1 and .2 (<span style="color:#FFFFB3">line</span>), the coefficient is negative again, furthering the already decreasing slope (i.e. steeper downward). The fourth coefficient is positive, which means that between .2 and .3 our decreasing trend is lessening (<span style="color:#BEBADA">line</span>).  Thus our coefficients $j$ tell us the change in slope that occurs at the previous knot $\kappa_{j-1}$.  The length's of the line above reflect the size of the coefficient, i.e. how dramatic the change is. If this gets you to thinking about interactions in more common model settings, you're on the right track (e.g. adding a quadratic term is just letting x have an interaction with itself; same thing is going on here).
 
 Finally if plot the sum of the basis functions, which is the same as taking our fitted values from a regression on the basis expansion of X, we get the following fit to the data. And we can see the trend our previous plot suggested.
 
@@ -418,3 +418,6 @@ plot_ly(width='75%', colors='Set3') %>%
 
 
 
+# refs
+
+zevross recreate gam plot
