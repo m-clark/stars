@@ -1,0 +1,423 @@
+---
+title: "Polynomials"
+author: |
+  | Michael Clark
+  | Statistician Lead
+  | Consulting for Statistics, Computing and Analytics Research
+  | <span style="color:'#00274c'">Advanced Research Computing</span>
+date: '`r Sys.Date()`'
+output:
+  html_document:
+    # css: workshop.css
+    highlight: tango
+    theme: cosmo
+    toc: yes
+  pdf_document:
+    highlight: pygments
+    toc: yes
+always_allow_html: yes
+---
+
+```{r setupPacks, include=FALSE}
+library(plotly); library(lazerhawk); library(tidyverse)
+```
+
+
+
+# A motivating example
+
+We may come across a situation where the target of interest $y$ is a function of some covariate $x$, whose effect is not straightforward in a linear sense.  In a standard regression we can generally write the model as follows:
+
+$$y = f(x) + e$$
+
+If we are talking a linear relationship between y and x, f(x) might be a simple sum of the covariates.
+
+$$y = b_0 + b_1*x + e$$
+
+In that case we could do our standard regression model.  Now consider the following functional form for x:
+
+$$f(x) = sin(2(4x-2)) + 2e^{-(16^2)(x-.5)^2}$$
+$$e \sim N(0,.3^2)$$
+
+```{r simData}
+set.seed(123)
+x = runif(500)
+mu = sin(2*(4*x-2)) + 2*exp(-(16^2)*((x-.5)^2))
+y = rnorm(500, mu, .3)
+d = data.frame(x,y) 
+```
+
+Let's take a look at it visually.
+
+```{r simDataPlot, echo=F}
+black5 = alpha('black', .05)   # apparently will only work with I(black25)
+black25 = alpha('black', .25)
+plot_ly(width=700, data=d) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5)) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+
+
+## Polynomial regression doesn't work
+
+In the past people would try and use polynomial regression, e.g. fitting a quadratic or cubic function within the standard regression framework.  However, this is unrealistic at best and at worst isn't useful for complex relationships. In the following even with a polynomial of degree 15 the fit is fairly poor in many areas.
+
+```{r polyreg, echo=FALSE}
+fits = sapply(seq(3,15, 3), function(p) fitted(lm(y~poly(x,p)))) %>% 
+  data.frame() %>% 
+  cbind(x, y, .) %>% 
+  gather(key=polynomial, value=fits, -x, -y) %>% 
+  mutate(polynomial = factor(polynomial, labels=seq(3,15, 3)))
+
+
+plot_ly(width=700, data=d) %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.1), showlegend=F) %>% 
+  add_lines(~x, ~fits, color=~polynomial, data=fits) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+## Piecewise polynomial
+We can divide the data into chunks at various points (<span class='emph'>knots</span>), and fit a polynomial within that subset of data.
+
+```{r piecewisePoly, echo=FALSE}
+knots = seq(0,1, by=.1)
+d$xcut = cut(x, knots, right=F)
+d$xcut = factor(d$xcut, levels=c('Int', levels(d$xcut))) # add int for later
+
+fits = d %>% 
+  group_by(xcut) %>% 
+  do(data.frame(x=.$x, y=.$y, fit=fitted(lm(y~poly(x, 3), data=.))))
+
+
+plot_ly(fits, width='75%') %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.1), showlegend=F) %>% 
+  add_lines(~x, ~fit, color=I('#8B000080'), showlegend=F) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+While this is better, again it is unsatisfactory. The separate fits are unconnected, leading to sometimes notably different predictions for values close together.
+
+## Polynomial spline
+Polynomial splines seek to remedy the above problems by creating a smooth function while still taking this piecewise type of approach.  To demonstrate, we'll create a polynomial spline by hand. The following is based on Fahrmeier et al. (2013).
+
+The approach is defined as follows, with $\kappa$ knots on the interval $[a,b]$ as $a=\kappa_1 < ... < \kappa_m =b$:
+
+$$y_i = \gamma_1 + \gamma_2X_i + ... + \gamma_{l+1}(X_i)_+^l + \gamma_{l+2}(X_i - \kappa_2)_+^l ... + \gamma_{l+m-1}(X_i - \kappa_{m-1})_+^l + e_i$$
+
+
+$$(X_i - \kappa_j)^l_+= \begin{cases} 
+(X_i-\kappa_j)^l & X_i \geq k_j \\ 
+0 & \textrm{otherwise}
+\end{cases}$$
+
+Note that there is nothing special about this. It is just a standard linear regression model when everything is said and done. The first part is even a standard polynomial of degree $l$.
+
+More generally and cleanly:
+$$y = f(X) + e = \sum_{j=1}^{d}B_j(X)\gamma_j + e$$
+
+Above, $B$ is a basis function that transforms $X$ as needed, and the $\gamma$ are the regression coefficients.  But before getting too far let's see it in action. Here our polynomial spline will be done with degree $l$ equal to 1, which means that we are just fitting a linear regression.
+
+```{r csbs}
+knots = seq(0, 1, by=.1); knots = knots[-length(knots)]  # don't need the last value
+l = 1
+bs = sapply(1:length(knots), function(k) ifelse(x >= knots[k], (x-knots[k])^l, 0))
+
+head(bs)
+```
+
+If we plot this against our target variable $y$, it doesn't look like much.
+
+```{r csbsPlot, echo=FALSE}
+bs = data.frame(int=1, bs)
+d2 = data.frame(x, bs) %>% 
+  gather(key=bs, value=bsfunc, -x)
+
+plot_ly(d, width='75%') %>% 
+  add_markers(~x, ~y, marker=list(color='black', opacity=.25), showlegend=F) %>% 
+  add_lines(~x, ~bsfunc, color=~bs, colors='Set3', showlegend=F, data=arrange(d2,x)) %>% # colorscale ignored
+  theme_plotly() %>% 
+  layout()
+```
+
+If we multiply each basis by it's corresponding regression coefficient we can start to interpret the result. 
+
+```{r csbsScaledPlotData, echo=c(2:4,6:7), eval=-1}
+# bs = as.matrix(data.frame(int=1, bs))
+lmMod = lm(y~.-1, bs)
+bscoefs = coef(lmMod)
+bsScaled = sweep(bs, 2, bscoefs,`*`)
+colnames(bsScaled) = c('int', paste0('X', 1:10))
+# head(bsScaled)
+round(bscoefs, 3)
+
+d3 = data.frame(x, y, bsScaled) %>% 
+  gather(key=bs, value=bsfunc, -x, -y, factor_key = T) %>% 
+  dplyr::filter(bsfunc >= min(y) & bsfunc <= max(y))
+```
+
+```{r csbsScaledPlot, echo=F}
+# NOTE: you've tried all the easy ways and plotly won't color lines and points the same; it will either do all one color or pick a different scheme.
+# but if you don't care about the markers, just make them black, but use more transparency, because there are replicates due to the data melt.
+cs = RColorBrewer::brewer.pal(nlevels(d$xcut), 'Set3')
+# KEEP this version. Dupes Fahrmeier, but not as desirable in my opinion
+# d3 %>%
+#   group_by(bs) %>% 
+#   plot_ly(width='75%') %>%
+#   add_markers(~x, ~y, color=I('rgba(0,0,0,.02)'), colors=cs, showlegend=T) %>% #RColorBrewer::brewer.pal(N, "Set3")
+#   add_lines(~x, ~bsfunc, color=~bs, colors=cs, showlegend=F) %>% 
+#   theme_plotly() %>% 
+#   layout()
+
+# NOTE: if you do want the colors the same, try this
+d3 = bsScaled %>% 
+  mutate(x=x, y=y, xcut=as.ordered(d$xcut))
+plot_ly(width='75%') %>%
+  add_markers(~x, ~y, color=~xcut, colors=cs, alpha=.5, showlegend=T, data=d3) %>% #RColorBrewer::brewer.pal(N, "Set3")
+  # add_markers(~x, ~bsfunc, color=I('navy'), data=data.frame(bsfunc=d3$bsfunc[1], x=0), showlegend=F) %>%
+  add_lines(~x, ~X1, color=~xcut, data=filter(d3, xcut=='[0,0.1)'), showlegend=F) %>%
+  add_lines(~x, ~X2, color=~xcut, data=filter(d3, xcut=='[0.1,0.2)'), showlegend=F) %>%
+  add_lines(~x, ~X3, color=~xcut, data=filter(d3, xcut=='[0.2,0.3)'), showlegend=F) %>%
+  add_lines(~x, ~X4, color=~xcut, data=filter(d3, xcut=='[0.3,0.4)'), showlegend=F) %>%
+  add_lines(~x, ~X5, color=~xcut, data=filter(d3, xcut=='[0.4,0.5)'), showlegend=F) %>%
+  add_lines(~x, ~X6, color=~xcut, data=filter(d3, xcut=='[0.5,0.6)'), showlegend=F) %>%
+  add_lines(~x, ~X7, color=~xcut, data=filter(d3, xcut=='[0.6,0.7)'), showlegend=F) %>%
+  add_lines(~x, ~X8, color=~xcut, data=filter(d3, xcut=='[0.7,0.8)'), showlegend=F) %>%
+  add_lines(~x, ~X9, color=~xcut, data=filter(d3, xcut=='[0.8,0.9)'), showlegend=F) %>%
+  add_lines(~x, ~X10, color=~xcut, data=filter(d3, xcut=='[0.9,1)'), showlegend=F) %>%
+  add_markers(x=0, y=bscoefs[1], color=I('salmon'), size=I(20), alpha=.5, showlegend=F) %>% 
+  add_lines(x=~x, y=0, color=I(alpha('black', .25)), data=d3, showlegend=F) %>%
+  theme_plotly() %>% 
+  layout()
+```
+
+In the plot above, the initial dot represents the global constant ($\gamma_1$, i.e. our intercept, in our formula above). We have a decreasing function starting from that point onward (<span style="color:#8DD3C7">line</span>). Between .1 and .2 (<span style="color:#FFFFB3">line</span>), the coefficient is negative again, furthering the already decreasing slope (i.e. steeper downward). The fourth coefficient is positive, which means that between .2 and .3 our decreasing trend is lessening (<span style="color:#BEBADA">line</span>).  Thus our coefficients $j$ tell us the change in slope that occurs at the previous knot $\kappa_{j-1}$.  The length's of the line above reflect the size of the coefficient, i.e. how dramatic the change is. If this gets you to thinking about interactions in more common model settings, you're on the right track (e.g. adding a quadratic term is just letting x have an interaction with itself; same thing is going on here).
+
+Finally if plot the sum of the basis functions, which is the same as taking our fitted values from a regression on the basis expansion of X, we get the following fit to the data. And we can see the trend our previous plot suggested.
+
+```{r csbsFitPlotDegree1, echo=FALSE}
+plotData = rbind(data.frame(d, sum=fitted(lmMod)),
+                 data.frame(x=0, y=bscoefs[1], sum=NA, xcut='Int'))
+
+# filter(plotData, xcut!='Int') %>% droplevels %>% 
+#   figure( width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color=xcut, size=8, line_alpha=0) %>% 
+#   ly_lines(x, y=sum, color=xcut, legend=F) %>% 
+#   ly_points(x, y, color=xcut, size=20, data=filter(plotData, xcut=='Int'))%>% 
+#   theme_legend(border_line_alpha=0, label_width=5, label_height=2,
+#                label_standoff=5, legend_spacing=0, legend_padding=0,
+#                label_text_font_size='8pt')
+
+filter(plotData, xcut!='Int') %>% 
+  droplevels %>% 
+  plot_ly(width='75%') %>% 
+  add_markers(~x, ~y, color=~xcut, colors=cs, alpha=.5, showlegend=F) %>% 
+  add_lines(~x, ~sum, color=~xcut, colors=cs, showlegend=F) %>% 
+  add_markers(x=0, y=bscoefs[1], size=~I(20), color=I('salmon'), alpha=.5, showlegend=F) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+
+One of the most common approaches uses a cubic spline fit. So we'll change our polynomial degree from 1 to 3.  Seems to be fitting the data well.
+
+```{r csFitPlotDegree3, echo=FALSE}
+l = 3
+bs = sapply(1:length(knots), function(k) ifelse(x >= knots[k], (x-knots[k])^l, 0))
+lmModCubicSpline = lm(y ~ poly(x,3) + bs)
+# data.frame(x, y, fits=fitted(lmModCubicSpline)) %>% 
+#   ggvis(~x, ~y) %>% 
+#   layer_points(~x, ~y, fillOpacity:=.5) %>% 
+#   layer_lines(y=~fits, stroke:='ff5503', strokeWidth:=2) %>% 
+#   add_axis('y', title='y')
+
+# data.frame(x, y, fits=fitted(lmModCubicSpline)) %>% arrange(x) %>% 
+#   figure( width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color='black', size=8, line_alpha=0, alpha=.5) %>% 
+#   ly_lines(x, y=fits, color='#ff5504', width=2)
+
+data.frame(x, y, fits=fitted(lmModCubicSpline)) %>% 
+  plot_ly(width='75%') %>% 
+  add_markers(~x, ~y, color=I(black5), colors=cs, showlegend=F) %>% 
+  add_lines(~x, ~fits, color=I('#ff5503'), colors=cs, showlegend=F) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+Let's compare it to the <span class='func'>gam</span> function from the <span class='pack'>mgcv</span> package. As we'll see later we won't usually specify the knots directly, and even as we have set things up similar very close to our own approach, the gam function is still doing some things our by-hand approach is not (penalized regression).  We still get pretty close agreement.
+
+```{r csFitPlotvsGAM, echo=FALSE}
+library(mgcv)
+
+# data.frame(x, y, fits=fitted(lmModCubicSpline), fitsGam=fitted(gam(y~s(x, bs='cr'), knots=list(x=knots)))) %>% 
+#   arrange(x) %>% 
+#   figure( width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color='black', size=8, line_alpha=0, alpha=.5)  %>% 
+#   ly_lines(x, y=fits, color='#ff5504', width=2) %>% 
+#   ly_lines(x, y=fitsGam, color='red', width=2)
+
+data.frame(x, y, fits=fitted(lmModCubicSpline), fitsGam=fitted(gam(y~s(x, bs='cr'), knots=list(x=knots)))) %>% 
+  arrange(x) %>% 
+  plot_ly(width='75%') %>% 
+  add_markers(~x, ~y, color=I(black5), colors=cs, showlegend=F) %>% 
+  add_lines(~x, ~fits, color=I('#ff5503'), colors=cs, showlegend=F) %>% 
+  add_lines(~x, ~fitsGam, color=I('darkred'), colors=cs, showlegend=F) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+
+We can see that we're on the right track by using the contructor function within mgcv and a custom function for truncated power series like what we're using above. See the example in the help file for <span class='func'>smooth.construct</span> for the underlying truncated power series function.  I only show a few of the columns, but our by-hand construction and that used by gam are identical to several decimal places. 
+
+```{r gamDatavsByhandData, echo=-1}
+smooth.construct.tr.smooth.spec<-function(object,data,knots)
+## a truncated power spline constructor method function
+## object$p.order = null space dimension
+{ m <- object$p.order[1]
+  if (is.na(m)) m <- 3 ## default 
+  if (m<1) stop("silly m supplied")
+  if (object$bs.dim<0) object$bs.dim <- 10 ## default
+  nk<-object$bs.dim-m-1 ## number of knots
+  if (nk<=0) stop("k too small for m")
+  x <- data[[object$term]]  ## the data
+  x.shift <- mean(x) # shift used to enhance stability
+  k <- knots[[object$term]] ## will be NULL if none supplied
+  if (is.null(k)) # space knots through data
+  { n<-length(x)
+    k<-quantile(x[2:(n-1)],seq(0,1,length=nk+2))[2:(nk+1)]
+  }
+  if (length(k)!=nk) # right number of knots?
+  stop(paste("there should be ",nk," supplied knots"))
+  x <- x - x.shift # basis stabilizing shift
+  k <- k - x.shift # knots treated the same!
+  X<-matrix(0,length(x),object$bs.dim)
+  for (i in 1:(m+1)) X[,i] <- x^(i-1)
+  for (i in 1:nk) X[,i+m+1]<-(x-k[i])^m*as.numeric(x>k[i])
+  object$X<-X # the finished model matrix
+  if (!object$fixed) # create the penalty matrix
+  { object$S[[1]]<-diag(c(rep(0,m+1),rep(1,nk)))
+  }
+  object$rank<-nk  # penalty rank
+  object$null.space.dim <- m+1  # dim. of unpenalized space
+  ## store "tr" specific stuff ...
+  object$knots<-k;object$m<-m;object$x.shift <- x.shift
+ 
+  object$df<-ncol(object$X)     # maximum DoF (if unconstrained)
+ 
+  class(object)<-"tr.smooth"  # Give object a class
+  object
+}
+
+xs = scale(x, scale=F)
+bs = sapply(1:length(knots), function(k) ifelse(x >= knots[k], (x-knots[k])^l, 0))
+sm = smoothCon(s(x, bs='tr', k=14), data=d, knots=list(x=knots))[[1]]
+head(sm$X[,1:6])
+modelMatrix = cbind(1, xs, xs^2, xs^3, bs)
+identical(round(sm$X,4), round(modelMatrix,4))
+```
+
+## The number of knots and where to put them.
+
+A natural question may arise as to how many knots to use. More knots mean more 'wiggliness', as demonstrated here.
+
+
+```{r differentNKnots, echo=FALSE}
+library(dplyr)
+l = 3
+nk = c(3, 6, 9, 15)
+bs = lmCS = list()
+for (i in 1:length(nk)){
+  knots = seq(0, 1, length.out=nk[i]); knots = knots[-length(knots)]
+  # knots[[i]]
+  bs[[i]] = sapply(1:length(knots), function(k) ifelse(x >= knots[k], (x-knots[k])^l, 0))
+  lmCS[[i]] = lm(y~poly(x,3) + bs[[i]])
+}
+fits = sapply(lmCS, fitted)
+
+
+# data.frame(x, y, fits=fits) %>% arrange(x) %>% 
+#   gather(key='knots', value='value', -x, -y) %>%  
+#   mutate(knots = factor(knots, labels=nk)) %>% 
+#   figure( width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color='black', size=8, line_alpha=0, alpha=.1)  %>% 
+#   ly_lines(x, y=value, color=knots, width=2) %>% 
+#   theme_legend(border_line_alpha=0, label_width=5, label_height=2,
+#                label_standoff=5, legend_spacing=0, legend_padding=0,
+#                label_text_font_size='8pt')
+
+d4 = data.frame(x, y, fits=fits) %>% #arrange(x) %>% 
+  gather(key='knots', value='value', -x, -y) %>%  
+  mutate(knots = factor(knots, labels=nk))
+
+d4 %>% 
+  plot_ly(width='75%', colors='Set3') %>% # have to set colorscale here if you want it to work after point color
+  add_markers(~x, ~y, color=I(black25), showlegend=F, data=d) %>%
+  add_lines(~x, ~value, color=~knots, line=list(width=3), showlegend=T, data=d4) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+As an example of other types of smooth.terms we might use, here are the basis functions for b-splines. They work notably differently, e.g. over intervals of $l+2$ knots
+
+```{r bSpline, echo=FALSE}
+bfs = splines::bs(x, knots=knots[-1])
+bsMod = lm(y ~ bfs)
+fits = fitted(bsMod)
+bfsScaled = sweep(cbind(Int=1, bfs), 2, coef(bsMod),`*`)
+
+bSplineXmatsc = data.frame(x, fits, bfsScaled) %>%
+  gather(key=bs, value=bsfunc, -x, -fits)
+bSplineXmat = data.frame (Int=1, x = x, bfs) %>% 
+  gather(key=bs, value=bsfunc, -x)
+
+
+
+# bSplineXmat %>% 
+#   ggvis(~x, ~bsfunc) %>% 
+#   layer_points(~x, ~y, fillOpacity:=.1, data=d) %>%
+#   group_by(bs) %>%
+#   layer_lines(stroke=~bs) %>% 
+#   hide_legend('stroke') %>% 
+#   lazerhawk::ggClean()
+# 
+# bSplineXmatsc %>% 
+#   ggvis(~x, ~bsfunc) %>% 
+#   layer_points(~x, ~y, fillOpacity:=.1, data=d) %>%
+#   layer_lines(y=~fits, strokeWidth:=2) %>% 
+#   group_by(bs) %>%
+#   layer_lines(stroke=~bs) %>% 
+#   hide_legend('stroke') %>% 
+#   lazerhawk::ggClean()
+
+
+# bSplineXmat %>% arrange(x) %>% 
+#   figure(width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color='black', size=8, line_alpha=0, alpha=.5, data=d)  %>% 
+#   ly_lines(x, bsfunc, color=bs, width=2, legend=F) 
+# bSplineXmatsc %>% arrange(x) %>% 
+#   figure(width=700, theme=bk_ggplot_theme, tools=NULL) %>%
+#   ly_points(x, y, color='black', size=8, line_alpha=0, alpha=.5, data=d)  %>% 
+#   ly_lines(x, bsfunc, color=bs, width=2, legend=F) 
+
+
+ 
+plot_ly(width='75%', colors='Set3') %>% 
+  add_markers(~x, ~y, color=I(black25), showlegend=F, data=d) %>%
+  add_lines(~x, ~bsfunc, color=~bs, line=list(width=3), showlegend=F, data=bSplineXmat) %>% 
+  theme_plotly() %>% 
+  layout()
+
+plot_ly(width='75%', colors='Set3') %>% 
+  add_markers(~x, ~y, color=I(black25), showlegend=F, data=d) %>%
+  add_lines(~x, ~bsfunc, color=~bs, line=list(width=3), showlegend=F, data=bSplineXmatsc) %>% 
+  theme_plotly() %>% 
+  layout()
+```
+
+
+
+# refs
+
+zevross recreate gam plot
