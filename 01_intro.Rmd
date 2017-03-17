@@ -7,8 +7,7 @@
 
 ##### Why
 - demo where lm fails
-- vs 'outliers'
-- vs transformation fail
+    - vs traditional ways of dealing with problems that arise
 
 ##### Segue: standard polynomial
 - where works

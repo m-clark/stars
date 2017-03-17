@@ -1,0 +1,124 @@
+# Why not just use standard methods?
+
+The standard linear model is ubiquitous in statistical training and application, and for good reason.  It is simple to do and easy to understand. Let's go ahead and do one to get things started.
+
+```{r demolmdat, echo=-(1:4), eval=-6}
+set.seed(123)
+library(mgcv)
+dat = gamSim(1,n=400,dist="normal",scale=1, verbose=F)
+b = gam(y~s(x0)+s(x1)+s(x2)+s(x3),data=dat)
+```
+
+```{r demolm, eval=FALSE}
+mod = lm(y ~ x1 + x2, data=dat)
+summary(mod)
+```
+
+
+```{r lmsummary_clean, echo=FALSE}
+mod = lm(y ~ x1 + x2, data=dat)
+tidy(mod) %>% 
+  mutate_if(is.numeric, round, digits=2) %>% 
+  pander()
+glance(mod) %>% 
+  select(r.squared) %>% 
+  round(2) %>% 
+  pander
+```
+
+
+Everything is nice and tidy. We have straightforward information, positive effect of `x1`, negative for `x2`, and familiar output.  Depending on your context, the R^2^ may or may not be something exciting. Let's look at some diagnostics.
+
+```{r lmdiag, echo=FALSE}
+par(mfrow=c(1,2))
+plot(mod, which=1:2, bty='n', pch=19, col=c(scales::alpha('black', .15)), col.lab='gray25', col.axis='gray50', col.sub='gray50')
+# axis(side=1, col='red')
+graphics::layout(1)
+```
+
+Some issues might be present, as we might be getting a little more variance with some, especially higher, fitted values. We're also a little loose in the tails of the distribution of the residuals.  Let's compare our predictions to the data.  With a strong model we might see a cigar shaped cloud converging to a line with slope 1 as the fit gets better.  We seem to be having some issues here, as the residual plot noted above.
+
+
+```{r plotlmfit, echo=FALSE}
+augment(mod) %>% 
+  ggplot(aes(x=.fitted, y=y)) +
+  geom_point(alpha=.25) + 
+  geom_smooth(se=F) +
+  labs(title='Fitted vs. Observed') +
+  theme_ipsum_rc() +
+  theme_trueMinimal()
+```
+
+
+Now let's go back and visualize the data.  The follow plots both predictors against the target variable.
+
+```{r, echo=FALSE}
+# p =
+  dat %>% 
+  select(x1, x2, y) %>% 
+  gather(key=variable, value=Predictor, -y) %>% 
+  ggplot(aes(x=Predictor, y=y)) +
+  geom_point(alpha=.25) + 
+  geom_smooth(aes(color=variable), se=F) +
+  facet_grid(~variable) + 
+  labs(title='Fitted vs. Observed') +
+  theme_ipsum_rc() +
+  theme_trueMinimal() +
+  theme(legend.title=element_blank(),
+        legend.background=element_blank(),
+        legend.key=element_blank())
+# ggplotly()
+
+```
+
+Yikes. We certainly have a positive effect for x1, but it looks rather curvy.  The other predictor doesn't appear to have a relationship that could be classified easily.
+
+### Heteroscedasticity, non-normality etc.
+
+In many cases as above, people have some standby methods for dealing with the problem.  For example, the might see the qqplot for the residuals and think some of those cases are 'outliers', perhaps even dropping them from analysis.  Others might try a tranformation of the target variable, for example, in cases of heteroscedasticity (not because of non-normality!) some might take the log.
+
+
+```{r loglm, eval=FALSE}
+modlog = lm(log(y) ~ x1 + x2, dat)
+summary(modlog)
+```
+```{r loglmsummary_clean, echo=FALSE}
+modlog = lm(log(y) ~ x1 + x2, dat)
+tidy(modlog) %>% 
+  mutate_if(is.numeric, round, digits=2) %>% 
+  pander::pander()
+glance(modlog) %>% 
+  select(r.squared) %>% 
+  round(2) %>% 
+  pander
+```
+
+Well, our fit in terms of R^2^ has actually gone down. Let's check the diagnostics.
+
+```{r loglmdiag, echo=FALSE}
+par(mfrow=c(1,2))
+plot(modlog, which=1:2, bty='n', pch=19, col=c(scales::alpha('black', .15)), col.lab='gray25', col.axis='gray50', col.sub='gray50')
+graphics::layout(1)
+```
+
+If anything we're worse off. It helped in some ways but made other things worse.
+
+
+```{r plotloglmfit, echo=FALSE}
+augment(modlog) %>% 
+  ggplot(aes(x=.fitted, y=log.y.)) +
+  geom_point(alpha=.25) + 
+  geom_smooth(se=F) +
+  labs(title='Fitted vs. Observed', y='log(y)') +
+  theme_ipsum_rc() +
+  theme_trueMinimal()
+```
+
+We continue to see some poor fitting cases and now our fit is flattening even more than it was. 
+
+
+This is a fairly typical result.  Transformations often exacerbate data issues or fail to help. What's more, some of them lead to difficult to interpret coefficients, or aren't even applicable (categorical, ordinal targets).  
+
+Outliers, if there was actually a standard for deeming something as such, are just indicators that your model doesn't capture the data generating process in some fashion.  Cutting data for that reason hasn't been acceptable for some time.
+
+Data abounds where a standard linear model doesn't do a good job. There maybe nonlinear relationships as above, dependency in the observations, known non-Gaussian data etc.  
