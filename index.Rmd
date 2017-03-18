@@ -11,7 +11,7 @@ output:
       css: [standard_html.css, stars.css]
       highlight: pygments
       number_sections: false
-      toc_depth: 1
+      toc_depth: 2
       config:
         search: yes
         # edit: false
@@ -39,8 +39,8 @@ knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eva
 
 
 ```{r load_common_packages, echo=FALSE, cache=FALSE, eval=TRUE}
-library(plotly); library(hrbrthemes); library(lazerhawk); library(tidyverse); 
-library(mgcv); library(broom); library(pander)
+library(plotly); library(hrbrthemes); library(lazerhawk); library(modelr);
+library(mgcv); library(broom); library(pander); library(modelr); library(tidyverse)
 ```
 
 # 
