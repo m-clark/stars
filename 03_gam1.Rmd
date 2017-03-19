@@ -363,6 +363,3 @@ d4 %>%
 
 However, as we'll come to learn, we don't really have to worry about this except in the conceptual sense, i.e. being able to control the wiggliness.  The odds of you knowing beforehand the number of knots and where to put them is somewhere between slim and none, so this is a good thing.
 
-# refs
-
-zevross recreate gam plot

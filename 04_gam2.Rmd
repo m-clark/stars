@@ -5,28 +5,39 @@ One of the more powerful modeling packages in R comes with its installation[^gam
 
 ## Getting started
 
-The main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding!
-
-
-
-```{r}
+```{r echo=FALSE, eval=2}
+# some initial exploration
 imdb = read.csv('data/movie_metadata.csv')
+# note this data has extra characters and possibly other issues
 imdb %>% summary
 imdb %>%
-  filter(country=='USA', budget>1e8) %>%
+  filter(country=='USA', budget>1e6) %>%
   # filter(num_voted_users>50000, budget>median(budget, na.rm=T), country=='USA') %>% 
-  # qplot(x=title_year, y=imdb_score, data=.) +
-  qplot(x=budget, y=imdb_score, data=.) +
+  qplot(x=title_year, y=budget, data=.) +
+  # qplot(x=budget, y=imdb_score, data=.) +
   # qplot(x=gross, y=imdb_score, data=.) +
   # geom_point(aes(color=movie_title), show.legend=F) +
   geom_smooth()
 
 
+# create big budget
 imdb %>%
   filter(country=='USA', budget>1e8) %>%
+  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement=''),  # unfortunately this doesn't fix that pattern
+         movie_title=rvest::repair_encoding(movie_title),
+         movie_title=stringr::str_sub(movie_title, end=-2),
+         budget_in_millions = budget/1e6) %>% 
   write_csv('data/bigbudget.csv')
+
+# create small budget
+imdb %>%
+  filter(country=='USA', budget<1e6) %>%
+  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement=''),  # unfortunately this doesn't fix that pattern
+         movie_title=rvest::repair_encoding(movie_title),
+         movie_title=stringr::str_sub(movie_title, end=-2)) %>% 
+  write_csv('data/smallbudget.csv')
+
 imdb %>%
   filter(country=='USA', budget>1e8) %>%
   mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement='')) %>% 
@@ -48,22 +59,111 @@ imdb %>%
   select_if(is.numeric) %>% 
   cor(use='pair') %>% 
   heatR::corrheat()
+
+# imdb_small %>%
+#   filter(num_voted_users>10000) %>% 
+#   plot_ly() %>% 
+#   add_markers(x=~budget, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+#   lazerhawk::theme_plotly()
+# imdb_small %>%
+#   filter(num_voted_users>10000) %>%
+#   ggplot(aes(x=budget, y=imdb_score)) +
+#   geom_point() +
+#   geom_smooth()
+
 ```
 
 
 
+The main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
+
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) available from [Kaggle](https://www.kaggle.com/datasets) (now a Google product).  I have the whole data available in the repo for this document, but we'll use the 'big budget' subset, which includes only movies made in the U.S. that cost at least 100 million.  The data contains things like the year of the movie, the rating, number of reviews, budget, gross, etc.[^imdb]
 
 
 
+```{r readimdb, echo=1}
+imdb_big = read.csv('data/bigbudget.csv')
+imdb_small = read.csv('data/smallbudget.csv')
+
+DT::datatable(imdb_big, options=list(dom='t', scrollX=T, scrollY=T), width='100%')
+```
+
+<br>
+Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.
+<br>
+
+```{r plot_movies, eval=1, echo=1}
+imdb_big %>%
+  plot_ly() %>% 
+  add_markers(x=~num_voted_users, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+  lazerhawk::theme_plotly()
+imdb_big %>%
+  plot_ly() %>% 
+  add_markers(x=~title_year, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+  lazerhawk::theme_plotly()
+
+```
+
+<br>
+For these big budget movies, having more votes is associated with higher ratings, but less so with increasing popularity.  Let's fit a gam to this.  I will also put in budget (in millions) and year as standard effects.  We'll use a cubic regression spline for our basis, `bs='cr'`.
+<br>
+
+```{r}
+library(mgcv)
+gam_model = gam(imdb_score ~ title_year + budget_in_millions + s(num_voted_users, bs='cr'), data=imdb_big)
+summary(gam_model)
+```
+
+The first part contains standard linear regression results. In this case there is no relationship between budget and score once you've already spent this much in the first place.  It does look like scores increase slightly over time, but there is only about a .2 rating difference after 10 years.
+
+```{r parametric, echo=FALSE}
+cat("Parametric coefficients:
+                     Estimate Std. Error t value Pr(>|t|)   
+(Intercept)        -37.963762  16.347639  -2.322  0.02099 * 
+title_year           0.022265   0.008163   2.728  0.00682 **
+budget_in_millions  -0.000665   0.001164  -0.571  0.56819   
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1")
+```
+
+
+The next part contains our information regarding the smooth terms.
+
+
+```{r nonparametric, echo=FALSE}
+cat("Approximate significance of smooth terms:
+                     edf Ref.df     F p-value    
+s(num_voted_users) 2.356  2.842 87.39  <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1")
+```
+
+
+We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the edf does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
+
+
+At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll  need to go back to using a glm. 
+
+The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10.  There is functionality to choose the k value, but note:
+
+
+> So, exact choice of k is not generally critical: it should be chosen to be large enough that you are reasonably sure of having enough degrees of freedom to represent the underlying 'truth' reasonably well, but small enough to maintain reasonable computational efficiency. Clearly 'large' and 'small' are dependent on the particular problem being addressed.
 
 
 
+For the standard gaussian setting, we can use our R^2^.  Also provided is 'deviance explained', which in this setting is identical, but for non-gaussian families might be preferred. The GCV, or generalized cross validation score, can be taken as an estimate of the mean square prediction error based on a leave-one-out cross validation estimation process. 
 
-
-
+```{r}
+cat("R-sq.(adj) =   0.51   Deviance explained = 51.8%
+GCV = 0.44245  Scale est. = 0.43351   n = 265")
+```
 
 
 
 [^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM).
 
 [^penalty]: a quadratic penalty specifically
+
+[^imdb]: One might think this would be more interesting data, but there is actually not much variability in scores.  They have a mean of `r round(mean(imdb$imdb_score), 1)` and standard deviation, of `r round(sd(imdb$imdb_score), 1)`, with some skew (notable duds).
+
+[^allthewaytozero]: You can actually penalize the covariate right out of the model if desired, i.e. edf=0.
