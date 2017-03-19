@@ -1,5 +1,5 @@
 ---
-title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance your results!</span>"
+title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span>"
 author:  |
   <div class="title"><span style="font-size:125%; font-variant:small-caps; ">Michael Clark</span><br>
   <img src="img/signature-acronym.png" style="width:33%; padding:10px 0;"> <br>
@@ -22,7 +22,6 @@ always_allow_html: yes
 font-import: http://fonts.googleapis.com/css?family=Risque|Roboto|Open+Sans
 font-family: 'Roboto'
 documentclass: book
-# bibliography: []
 biblio-style: apalike
 link-citations: yes
 description: "Generalized Additive Models and Beyond"
@@ -37,11 +36,12 @@ knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eva
                       R.options=list(width=120), fig.width=8, fig.align = 'center')
 ```
 
-
 ```{r load_common_packages, echo=FALSE, cache=FALSE, eval=TRUE}
 library(plotly); library(hrbrthemes); library(lazerhawk); library(modelr);
 library(mgcv); library(broom); library(pander); library(modelr); library(tidyverse)
 ```
 
 # 
-
+```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html')}
+knitr::include_graphics('img/nineteeneightyR.png', dpi = NA)
+```

@@ -1,2 +1,69 @@
 # Practical GAM
 
+One of the more powerful modeling packages in R comes with its installation[^gampack].  The mixed gam computational vehical, or <span class="pack">mgcv</span> pacakage, is an extremely flexible modeling tool, and one we'll use for our foray into generalized additive models.  If you're familiar with standard regression models, the syntax is little different, but adds a great many possibilities to your efforts.
+
+
+## Getting started
+
+The main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
+
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding!
+
+
+
+```{r}
+imdb = read.csv('data/movie_metadata.csv')
+imdb %>% summary
+imdb %>%
+  filter(country=='USA', budget>1e8) %>%
+  # filter(num_voted_users>50000, budget>median(budget, na.rm=T), country=='USA') %>% 
+  # qplot(x=title_year, y=imdb_score, data=.) +
+  qplot(x=budget, y=imdb_score, data=.) +
+  # qplot(x=gross, y=imdb_score, data=.) +
+  # geom_point(aes(color=movie_title), show.legend=F) +
+  geom_smooth()
+
+
+imdb %>%
+  filter(country=='USA', budget>1e8) %>%
+  write_csv('data/bigbudget.csv')
+imdb %>%
+  filter(country=='USA', budget>1e8) %>%
+  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement='')) %>% 
+  plot_ly() %>% 
+  add_markers(x=~gross, y=~imdb_score, text = ~movie_title) %>% 
+  lazerhawk::theme_plotly()
+
+imdb %>%
+  filter(country=='USA', budget>1e8) %>%
+  # filter(country=='USA', duration>60) %>%
+  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement='')) %>% 
+  plot_ly() %>% 
+  add_markers(x=~gross, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+  # add_markers(x=~duration, y=~gross, text = ~movie_title, marker=list(color='#ff5503', opacity=.25)) %>% # interesting example for mixture
+  lazerhawk::theme_plotly()
+
+plot(gam(imdb_score ~ s(gross) + title_year + duration, data=imdb))
+imdb %>% 
+  select_if(is.numeric) %>% 
+  cor(use='pair') %>% 
+  heatR::corrheat()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+[^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM).
+
+[^penalty]: a quadratic penalty specifically

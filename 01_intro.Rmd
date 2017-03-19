@@ -3,6 +3,9 @@
 
 ~ Nature abhors the linear.
 
+This talk/workshop provides a brief introduction to <span class="emph">generalized additive models</span>, or GAMs, or even more generally STARs, or <span class="emph">structured additive regression</span> models.  They offer a natural extension to common generallized linear models, while having the flexibility to incorporate a wide range of modeling situations.
+
+
 ## Outline
 
 ##### Why
@@ -46,3 +49,4 @@
 
 ## Prerequisites
 
+Prerequisites include some experience with using R for statistical modeling, and of firm understanding of linear regression and exposure to generalized linear models.
