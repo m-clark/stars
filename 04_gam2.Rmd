@@ -73,6 +73,11 @@ imdb %>%
 
 ```
 
+Along with the formula previously displayed for a GAM, we add a penalty that increases with the size of the coefficients.  Consider the following for a maximum likelihood approach. Given some matrix of coefficients $S$, we can more formally note a <span class="emph">penalized likelihood</span> function:
+
+$$l_p(\beta)=\displaystyle l(\beta) - \frac{1}{2}\sum_j\lambda_j \beta^\mathrm{T} S_j\beta$$
+
+where $l(\beta)$ is the usual GLM likelihood function, and $\lambda_j$ are the smoothing parameters.  The part of the function including $\lambda$ penalizes curvature in the function, where $\lambda$  establishes a trade-off between the goodness of fit and the smoothness, and such an approach will allow for less overfitting.  Here is the take home message in case your eyes are glazing over: *we don't want to get too wiggly, or we overfit the data, and GAMs by default will attempt to find a balance between over-simplifying and over-complicating*.
 
 
 The main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
@@ -139,10 +144,9 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ```
 
 
-We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the edf does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
+We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
 
-
-At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll  need to go back to using a glm. 
+At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll need to go back to using a glm. 
 
 The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10.  There is functionality to choose the k value, but note:
 
@@ -153,7 +157,7 @@ The edf would equal 1 if the model penalized the smooth term to a simple linear 
 
 For the standard gaussian setting, we can use our R^2^.  Also provided is 'deviance explained', which in this setting is identical, but for non-gaussian families might be preferred. The GCV, or generalized cross validation score, can be taken as an estimate of the mean square prediction error based on a leave-one-out cross validation estimation process. 
 
-```{r}
+```{r rsq, echo=FALSE}
 cat("R-sq.(adj) =   0.51   Deviance explained = 51.8%
 GCV = 0.44245  Scale est. = 0.43351   n = 265")
 ```
@@ -164,6 +168,6 @@ GCV = 0.44245  Scale est. = 0.43351   n = 265")
 
 [^penalty]: a quadratic penalty specifically
 
-[^imdb]: One might think this would be more interesting data, but there is actually not much variability in scores.  They have a mean of `r round(mean(imdb$imdb_score), 1)` and standard deviation, of `r round(sd(imdb$imdb_score), 1)`, with some skew (notable duds).
+[^imdb]: One might think this would be more interesting data, but there is actually not much variability in scores.  They have a mean of `r round(mean(imdb$imdb_score), 1)` and standard deviation, of `r round(sd(imdb$imdb_score), 1)`, with some skew (notable duds).  Other variables are notable rounded.
 
 [^allthewaytozero]: You can actually penalize the covariate right out of the model if desired, i.e. edf=0.

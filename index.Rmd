@@ -40,7 +40,7 @@ knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eva
 ```
 
 ```{r load_common_packages, echo=FALSE, cache=FALSE, eval=TRUE}
-library(plotly); library(hrbrthemes); library(lazerhawk); library(modelr);
+library(plotly); library(hrbrthemes); library(lazerhawk); library(modelr)
 library(mgcv); library(broom); library(pander); library(modelr); library(tidyverse)
 ```
 
