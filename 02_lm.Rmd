@@ -122,7 +122,7 @@ axis(1, col='gray75', col.axis='gray33')
 graphics::layout(1)
 ```
 
-If anything we're worse off. It helped in some ways but made other things worse.
+The transformation may have helped in some ways, but made other things worse.
 
 
 ```{r plotloglmfit, echo=FALSE}

@@ -29,10 +29,31 @@ plot_ly(fits, width='100%') %>%
 
 While this is better, again it is unsatisfactory. The separate fits are unconnected, leading to sometimes notably different predictions for values close together.  Being fit to small amounts of data means each fit overfits that area of data, leading to a fairly 'wiggly' result most of the time.
 
+## Introducing GAMs
+
+`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a glm, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm:
+
+$$y = x + \epsilon$$
+
+Now the GAM:
+
+$$y = f(x) + \epsilon$$
+
+It involves choosing a basis, which in technical terms means choosing a space of functions for which $f$ is some element of it.  As we'll see later, an example would be choosing a cubic spline for the basis.  Choosing a basis also means we're selecting basis functions, which will actually go into the analysis.  We can add more detail as follows:
+
+$$y = f(x) + \epsilon = \sum_{j=1}^{d}B_j(x)\gamma_j + \epsilon$$
+
+Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $X$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  This might sound complicated, *until you realise you've done this before*.  Let's go back to the quadratic polynomial.
+
+$$f(x) = \gamma_0 + \gamma_1x + \gamma_1x^l$$
+
+As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a glm!  However, the additional point is that it uses penalized estimation, something that is quite common in some modeling contexts, and not common enough in applied research.
+
+
 
 ## Polynomial spline
 
-Polynomial splines seek to remedy the above problems by creating a smooth function, while still taking this piecewise type of approach.  To demonstrate, we'll create a polynomial spline by hand. The following is based on Fahrmeier et al. (2013).
+Polynomial splines seek to remedy the above problems by creating a smooth function for the term of interest, while still taking this piecewise type of approach.  To demonstrate, we'll create a polynomial spline by hand. The following is based on Fahrmeier et al. (2013).
 
 The approach is defined as follows, with $\kappa$ knots on the interval $[a,b]$ as $a=\kappa_1 < ... < \kappa_m =b$:
 
@@ -48,7 +69,7 @@ It might look complicated, but note that there is nothing particularly special a
 
 More generally and cleanly:
 
-$$y = f(X) + e = \sum_{j=1}^{d}B_j(X)\gamma_j + e$$
+$$y = f(x) + e = \sum_{j=1}^{d}B_j(x)\gamma_j + e$$
 
 Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $X$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  It looks complicated, but you've done this before.  Let's go back to the quadratic polynomial, there the basis function $B$ maps x to x and x^2^.
 

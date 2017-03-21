@@ -29,7 +29,7 @@ poly_dat %>%
   theme_plotly()
 ```
 
-The R^2^ for this is `r broom::glance(mod_poly)$r.s %>% round(2)`, that's great! But look closely and you might notice that we aren't capturing the tails of this data at all.  Here's what the data and fit would look like if we extend the data, and things only get worse.
+The R^2^ for this is `r broom::glance(mod_poly)$r.s %>% round(2)`, that's great! But look closely and you might notice that we aren't capturing the tails of this data at all.  Here's what the data and fit would look like if we extend the data based on the underlying true function, and things only get worse.
 
 ```{r poly_ack, echo=FALSE}
 x2 = c(runif(250, -5, -2), runif(250, 2, 5))
