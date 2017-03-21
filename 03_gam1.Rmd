@@ -31,7 +31,7 @@ While this is better, again it is unsatisfactory. The separate fits are unconnec
 
 ## Introducing GAMs
 
-`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a glm, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm:
+`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a glm, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
 
 $$y = x + \epsilon$$
 
@@ -43,12 +43,24 @@ It involves choosing a basis, which in technical terms means choosing a space of
 
 $$y = f(x) + \epsilon = \sum_{j=1}^{d}B_j(x)\gamma_j + \epsilon$$
 
-Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $X$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  This might sound complicated, *until you realise you've done this before*.  Let's go back to the quadratic polynomial.
+Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $x$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  This might sound complicated, *until you realise you've done this before*.  Let's go back to the quadratic polynomial, which uses the polynomial basis.
 
-$$f(x) = \gamma_0 + \gamma_1x + \gamma_1x^l$$
+$$f(x) = \gamma_0 + \gamma_1x +\gamma_1x^l$$
 
-As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a glm!  However, the additional point is that it uses penalized estimation, something that is quite common in some modeling contexts, and not common enough in applied research.
+In that case $l=2$ and we have our standard polynomial regression, but in fact, we can use this approach to produce the bases for any polynomial.  
 
+As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a glm!  However, the additional point is that it uses <span class="emph">penalized estimation</span>, something that is quite common in some modeling contexts, and not common enough in applied research.
+
+Again consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
+
+
+$$l_p(\beta)= l(\beta) - \frac{1}{2}\lambda\beta^2$$
+If you prefer least squares as the loss function, we can put it as:
+
+$$\mathcal{Loss} = \sum (y-X\beta)^2 + \frac{1}{2}\lambda\beta^2$$
+So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions.  The practical side is that it will help to keep us from overfitting the data, where are smooth function might get too wiggly[^wiggly].
+
+In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM, and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.
 
 
 ## Polynomial spline
@@ -384,3 +396,7 @@ d4 %>%
 
 However, as we'll come to learn, we don't really have to worry about this except in the conceptual sense, i.e. being able to control the wiggliness.  The odds of you knowing beforehand the number of knots and where to put them is somewhere between slim and none, so this is a good thing.
 
+
+[^subscripts]: I am leaving out subscripts where I don't think it helps, and as these are conceptual depictions, they usually don't.
+
+[^wiggly]: Wiggly is a highly technical term I will use throughout the presentation.
