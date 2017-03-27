@@ -80,13 +80,13 @@ So GAMs can be seen as a special type of GLM, that extends the model to incorpor
 
 As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package (you'll need to install it, the data object is called 'movies').
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package (you'll need to install it, the data object is called 'movies').  For information, type `r ?movies` after loading the package.
 
 
 <!-- We'll look at some data regarding the Internet Movie Database (IMDB) available from [Kaggle](https://www.kaggle.com/datasets) (now a Google product).  I have the whole data available in the repo for this document, but we'll use the 'big budget' subset, which includes only movies made in the U.S. that cost at least 100 million.  The data contains things like the year of the movie, the rating, number of reviews, budget, gross, etc.[^imdb] -->
 
 
-```{r datasetup, eval=FALSE, echo=FALSE}
+```{r movies_data_setup, eval=FALSE, echo=FALSE, cache=TRUE}
 library(ggplot2movies)
 library(lubridate)
 monthly_cpi = read.csv("http://research.stlouisfed.org/fred2/data/CPIAUCSL.csv", header = TRUE)
@@ -99,14 +99,45 @@ movies = left_join(movies, yearly_cpi) %>%
   filter(!is.na(budget)) %>% 
   mutate(budget_cpi = budget/adj_factor)
 
-movies %>% 
-  select(title, year, budget, budget_cpi) %>% 
-  head(50)
-# note voyna i mir, i.e. war and peace is incorrect on the imdb website; should be 10 mil, not 100
-movies %>% 
-  filter(budget>1000000) %>% 
-  plot_ly() %>% 
-  add_markers(~budget_cpi, ~rating, size=~budget_cpi, text=~title)
+# movies %>% 
+#   select(title, year, budget, budget_cpi) %>% 
+#   head(50)
+# # note voyna i mir, i.e. war and peace is incorrect on the imdb website; should be 10 mil, not 100
+# movies %>% 
+#   filter(budget>1000000) %>% 
+#   plot_ly() %>% 
+#   add_markers(~budget_cpi, ~rating, size=~budget_cpi, text=~title)
+
+movies_yearly = movies %>% 
+  filter(!is.na(budget_cpi), budget_cpi>1e3) %>% #length>60, 
+  mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
+  group_by(year, Action) %>% 
+  summarise(Budget = mean(budget_cpi),
+            Rating = mean(rating),
+            Votes = mean(votes)) %>% 
+  ungroup()
+# movies_yearly %>% 
+#   plot_ly() %>% 
+#   add_markers(~Budget, ~Rating, size=~Votes)
+# movies_yearly %>% 
+#   add_predictions(model=gam(Rating ~ s(year), data=.)) %>% 
+#   plot_ly() %>% 
+#   add_markers(~year, ~Rating, size=~Votes) %>% 
+#   add_lines(~year, ~pred)
+# movies_yearly %>% 
+#   add_predictions(model=gam(Rating ~ s(year, by=Action, bs='fs'), data=.)) %>% 
+#   plot_ly() %>% 
+#   add_markers(~year, ~Rating, size=~Votes) %>% 
+#   add_lines(~year, ~pred, color=~Action)
+# movies_yearly %>% 
+#   add_predictions(model=gam(Rating ~ s(year, by=Action, bs='fs'), data=.)) %>% 
+#   ggplot(aes(year, Rating)) +
+#   geom_point() +
+#   geom_line(aes(y=pred, color=Action)) +
+#   theme_ipsum_rc() +
+#   lazerhawk::theme_trueMinimal() 
+# ggplotly()
+
 ```
 
 
@@ -119,18 +150,30 @@ DT::datatable(head(movies, 100), options=list(dom='t', scrollX=T, scrollY=T), wi
 ```
 
 <br>
-Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.  For a little bit more manageable data, we'll use yearly means. 
+Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.  For a little bit more manageable data, we'll use yearly means, and only movies that had a known budget.  In addition, I've grouped them by whether they are an action movie or not.
 <br>
 
+```{r}
+movies_yearly = movies %>% 
+  filter(!is.na(budget_cpi)) %>% 
+  mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
+  group_by(year, Action) %>% 
+  summarise_at(.cols=vars(budget_cpi, rating, votes, length), .funs= function(x) round(mean(x), digits=1)) %>% 
+  ungroup()
+
+DT::datatable(movies_yearly, options=list(dom='pt', scrollX=T, scrollY=T), width='100%')
+```
+
+```{r}
+movies_yearly %>% 
+  plot_ly() %>% 
+  add_markers(~year, ~budget_cpi, color=~Action) %>% 
+  add_lines(~year, ~budget_cpi, color=~Action)
+```
 
 
 ```{r plot_movies, eval=1, echo=1}
 
-# ?movies
-movies = movies %>% 
-  filter(votes > 1000) %>% 
-  group_by(year) %>% 
-  
   
   
   
@@ -163,7 +206,7 @@ movies %>%
 For these big budget movies, having more votes is associated with higher ratings, but less so with increasing popularity.  Let's fit a gam to this.  I will also put in budget (in millions) and year as standard effects.  We'll use a cubic regression spline for our basis, `bs='cr'`.
 <br>
 
-```{r}
+```{r, eval=FALSE}
 library(mgcv)
 gam_model = gam(imdb_score ~ title_year + budget_in_millions + s(num_voted_users, bs='cr'), 
                 data=imdb_big)
