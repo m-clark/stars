@@ -70,42 +70,92 @@ imdb %>%
 #   ggplot(aes(x=budget, y=imdb_score)) +
 #   geom_point() +
 #   geom_smooth()
-
+imdb_big %>% 
+  group_by(title_year) %>% 
+  summarize(AvgRating=mean(imdb_score)) %>% 
+  qplot(data=., title_year, AvgRating, geom='point')
 ```
 
-Along with the formula previously displayed for a GAM, we add a penalty that increases with the size of the coefficients.  Consider the following for a maximum likelihood approach. Given some matrix of coefficients $S$, we can more formally note a <span class="emph">penalized likelihood</span> function:
+So GAMs can be seen as a special type of GLM, that extends the model to incorporate nonlinear and other relationships.  Behind the scenes, extra columns are added to our model matrix to do this, but their associated coefficients are penalized to help avoid overfitting.
 
-$$l_p(\beta)=\displaystyle l(\beta) - \frac{1}{2}\sum_j\lambda_j \beta^\mathrm{T} S_j\beta$$
+As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
 
-where $l(\beta)$ is the usual GLM likelihood function, and $\lambda_j$ are the smoothing parameters.  The part of the function including $\lambda$ penalizes curvature in the function, where $\lambda$  establishes a trade-off between the goodness of fit and the smoothness, and such an approach will allow for less overfitting.  Here is the take home message in case your eyes are glazing over: *we don't want to get too wiggly, or we overfit the data, and GAMs by default will attempt to find a balance between over-simplifying and over-complicating*.
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package (you'll need to install it, the data object is called 'movies').
 
 
-The main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
+<!-- We'll look at some data regarding the Internet Movie Database (IMDB) available from [Kaggle](https://www.kaggle.com/datasets) (now a Google product).  I have the whole data available in the repo for this document, but we'll use the 'big budget' subset, which includes only movies made in the U.S. that cost at least 100 million.  The data contains things like the year of the movie, the rating, number of reviews, budget, gross, etc.[^imdb] -->
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) available from [Kaggle](https://www.kaggle.com/datasets) (now a Google product).  I have the whole data available in the repo for this document, but we'll use the 'big budget' subset, which includes only movies made in the U.S. that cost at least 100 million.  The data contains things like the year of the movie, the rating, number of reviews, budget, gross, etc.[^imdb]
 
+```{r datasetup, eval=FALSE, echo=FALSE}
+library(ggplot2movies)
+library(lubridate)
+monthly_cpi = read.csv("http://research.stlouisfed.org/fred2/data/CPIAUCSL.csv", header = TRUE)
+monthly_cpi$year = year(monthly_cpi$DATE)
+yearly_cpi = monthly_cpi %>%
+  group_by(year) %>%
+  summarize(cpi = mean(VALUE)) %>% 
+  mutate(adj_factor =cpi/cpi[year == 2016])
+movies = left_join(movies, yearly_cpi) %>% 
+  filter(!is.na(budget)) %>% 
+  mutate(budget_cpi = budget/adj_factor)
+
+movies %>% 
+  select(title, year, budget, budget_cpi) %>% 
+  head(50)
+# note voyna i mir, i.e. war and peace is incorrect on the imdb website; should be 10 mil, not 100
+movies %>% 
+  filter(budget>1000000) %>% 
+  plot_ly() %>% 
+  add_markers(~budget_cpi, ~rating, size=~budget_cpi, text=~title)
+```
 
 
 ```{r readimdb, echo=1}
-imdb_big = read.csv('data/bigbudget.csv')
-imdb_small = read.csv('data/smallbudget.csv')
+library(ggplot2movies)
+# imdb_big = read.csv('data/bigbudget.csv')
+# imdb_small = read.csv('data/smallbudget.csv')
 
-DT::datatable(imdb_big, options=list(dom='t', scrollX=T, scrollY=T), width='100%')
+DT::datatable(head(movies, 100), options=list(dom='t', scrollX=T, scrollY=T), width='100%')
 ```
 
 <br>
-Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.
+Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.  For a little bit more manageable data, we'll use yearly means. 
 <br>
 
+
+
 ```{r plot_movies, eval=1, echo=1}
-imdb_big %>%
+
+# ?movies
+movies = movies %>% 
+  filter(votes > 1000) %>% 
+  group_by(year) %>% 
+  
+  
+  
+  
+movies %>%
   plot_ly() %>% 
-  add_markers(x=~num_voted_users, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+  add_markers(x=~votes, y=~rating, text = ~title, color=I('#ff5503')) %>%
   lazerhawk::theme_plotly()
-imdb_big %>%
+movies %>%
+  filter(budget>1e6) %>% 
   plot_ly() %>% 
-  add_markers(x=~title_year, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+  add_markers(x=~year, y=~rating, text = ~title, color=I('#ff5503')) %>%
   lazerhawk::theme_plotly()
+movies %>%
+  filter(votes > 1000) %>% 
+  plot_ly() %>% 
+  add_markers(x=~year, y=~rating, text = ~title, color=I('#ff6600')) %>%
+  lazerhawk::theme_plotly()
+# imdb_big %>%
+#   plot_ly() %>% 
+#   add_markers(x=~num_voted_users, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+#   lazerhawk::theme_plotly()
+# imdb_big %>%
+#   plot_ly() %>% 
+#   add_markers(x=~title_year, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
+#   lazerhawk::theme_plotly()
 
 ```
 
@@ -115,11 +165,12 @@ For these big budget movies, having more votes is associated with higher ratings
 
 ```{r}
 library(mgcv)
-gam_model = gam(imdb_score ~ title_year + budget_in_millions + s(num_voted_users, bs='cr'), data=imdb_big)
+gam_model = gam(imdb_score ~ title_year + budget_in_millions + s(num_voted_users, bs='cr'), 
+                data=imdb_big)
 summary(gam_model)
 ```
 
-The first part contains standard linear regression results. In this case there is no relationship between budget and score once you've already spent this much in the first place.  It does look like scores increase slightly over time, but there is only about a .2 rating difference after 10 years.
+The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. In this case there is no relationship between budget and score once you've already spent this much in the first place.  It does look like scores increase slightly over time, but there is only about a .2 rating difference after 10 years.
 
 ```{r parametric, echo=FALSE}
 cat("Parametric coefficients:
@@ -132,7 +183,7 @@ Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’
 ```
 
 
-The next part contains our information regarding the smooth terms.
+The next part contains our information regarding the smooth terms, of which there is only one.
 
 
 ```{r nonparametric, echo=FALSE}
@@ -142,6 +193,15 @@ s(num_voted_users) 2.356  2.842 87.39  <2e-16 ***
 ---
 Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1")
 ```
+
+However, the best way to interpret the smooth terms is visually.  The ability to so is easy, but the default plot may be difficult to grasp at first.  It is a component plot, which plots the original variable against the linear combination of its basis functions, i.e. the sum of each basis function multiplied by its respective coefficient. For example, if we were using a quadratic polynomial, it would be the plot of x against $b_1\cdot x + b_2\cdot x^2$. For GAMs, y is also centered, and what you end up with is something like the following.
+
+```{r gamplot}
+# y = scale(imdb_big)
+```
+
+
+
 
 
 We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
