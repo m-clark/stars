@@ -6,84 +6,11 @@ One of the more powerful modeling packages in R comes with its installation[^gam
 ## Getting started
 
 
-```{r echo=FALSE, eval=2}
-# some initial exploration
-imdb = read.csv('data/movie_metadata.csv')
-# note this data has extra characters and possibly other issues
-imdb %>% summary
-imdb %>%
-  filter(country=='USA', budget>1e6) %>%
-  # filter(num_voted_users>50000, budget>median(budget, na.rm=T), country=='USA') %>% 
-  qplot(x=title_year, y=budget, data=.) +
-  # qplot(x=budget, y=imdb_score, data=.) +
-  # qplot(x=gross, y=imdb_score, data=.) +
-  # geom_point(aes(color=movie_title), show.legend=F) +
-  geom_smooth()
-
-
-# create big budget
-imdb %>%
-  filter(country=='USA', budget>1e8) %>%
-  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement=''),  # unfortunately this doesn't fix that pattern
-         movie_title=rvest::repair_encoding(movie_title),
-         movie_title=stringr::str_sub(movie_title, end=-2),
-         budget_in_millions = budget/1e6) %>% 
-  write_csv('data/bigbudget.csv')
-
-# create small budget
-imdb %>%
-  filter(country=='USA', budget<1e6) %>%
-  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement=''),  # unfortunately this doesn't fix that pattern
-         movie_title=rvest::repair_encoding(movie_title),
-         movie_title=stringr::str_sub(movie_title, end=-2)) %>% 
-  write_csv('data/smallbudget.csv')
-
-imdb %>%
-  filter(country=='USA', budget>1e8) %>%
-  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement='')) %>% 
-  plot_ly() %>% 
-  add_markers(x=~gross, y=~imdb_score, text = ~movie_title) %>% 
-  lazerhawk::theme_plotly()
-
-imdb %>%
-  filter(country=='USA', budget>1e8) %>%
-  # filter(country=='USA', duration>60) %>%
-  mutate(movie_title=stringr::str_replace_all(movie_title, pattern='Â', replacement='')) %>% 
-  plot_ly() %>% 
-  add_markers(x=~gross, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
-  # add_markers(x=~duration, y=~gross, text = ~movie_title, marker=list(color='#ff5503', opacity=.25)) %>% # interesting example for mixture
-  lazerhawk::theme_plotly()
-
-plot(gam(imdb_score ~ s(gross) + title_year + duration, data=imdb))
-imdb %>% 
-  select_if(is.numeric) %>% 
-  cor(use='pair') %>% 
-  heatR::corrheat()
-
-# imdb_small %>%
-#   filter(num_voted_users>10000) %>% 
-#   plot_ly() %>% 
-#   add_markers(x=~budget, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
-#   lazerhawk::theme_plotly()
-# imdb_small %>%
-#   filter(num_voted_users>10000) %>%
-#   ggplot(aes(x=budget, y=imdb_score)) +
-#   geom_point() +
-#   geom_smooth()
-imdb_big %>% 
-  group_by(title_year) %>% 
-  summarize(AvgRating=mean(imdb_score)) %>% 
-  qplot(data=., title_year, AvgRating, geom='point')
-```
-
 So GAMs can be seen as a special type of GLM, that extends the model to incorporate nonlinear and other relationships.  Behind the scenes, extra columns are added to our model matrix to do this, but their associated coefficients are penalized to help avoid overfitting.
 
 As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package (you'll need to install it, the data object is called 'movies').  For information, type `r ?movies` after loading the package.
-
-
-<!-- We'll look at some data regarding the Internet Movie Database (IMDB) available from [Kaggle](https://www.kaggle.com/datasets) (now a Google product).  I have the whole data available in the repo for this document, but we'll use the 'big budget' subset, which includes only movies made in the U.S. that cost at least 100 million.  The data contains things like the year of the movie, the rating, number of reviews, budget, gross, etc.[^imdb] -->
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to you'll need to install it, the data object is called 'movies'.  For information, type `r ?movies` after loading the package.  However, our example will concern yearly averages based on that data set `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`.
 
 
 ```{r movies_data_setup, eval=FALSE, echo=FALSE, cache=TRUE}
@@ -91,31 +18,50 @@ library(ggplot2movies)
 library(lubridate)
 monthly_cpi = read.csv("http://research.stlouisfed.org/fred2/data/CPIAUCSL.csv", header = TRUE)
 monthly_cpi$year = year(monthly_cpi$DATE)
+
 yearly_cpi = monthly_cpi %>%
   group_by(year) %>%
   summarize(cpi = mean(VALUE)) %>% 
-  mutate(adj_factor =cpi/cpi[year == 2016])
+  mutate(adj_factor = cpi/cpi[year == 2016])
+
 movies = left_join(movies, yearly_cpi) %>% 
   filter(!is.na(budget)) %>% 
-  mutate(budget_cpi = budget/adj_factor)
+  mutate(budget_2016 = budget/adj_factor)
 
-# movies %>% 
-#   select(title, year, budget, budget_cpi) %>% 
-#   head(50)
-# # note voyna i mir, i.e. war and peace is incorrect on the imdb website; should be 10 mil, not 100
-# movies %>% 
-#   filter(budget>1000000) %>% 
-#   plot_ly() %>% 
-#   add_markers(~budget_cpi, ~rating, size=~budget_cpi, text=~title)
+
+
+movies_yearly_action = movies %>% 
+  filter(!is.na(budget_2016)) %>% #length>60, 
+  mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
+  group_by(year, Action) %>%
+  mutate(N=n()) %>% 
+  summarise_at(.cols = vars(budget_2016, rating, votes, length, N), 
+               .funs = funs('_'= round(mean(.), digits=1))) %>% # unclear why renaming variables based on function is REQUIRED
+  rename(budget_2016=budget_2016__,
+         rating=rating__,
+         votes=votes__,
+         length=length__,
+         N=N__) %>% 
+  mutate(budget_2016 = budget_2016/1e6) %>% 
+  ungroup()
+
 
 movies_yearly = movies %>% 
-  filter(!is.na(budget_cpi), budget_cpi>1e3) %>% #length>60, 
-  mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
-  group_by(year, Action) %>% 
-  summarise(Budget = mean(budget_cpi),
-            Rating = mean(rating),
-            Votes = mean(votes)) %>% 
+  filter(!is.na(budget_2016)) %>% #length>60, 
+  group_by(year) %>% 
+  mutate(N=n()) %>% 
+  summarise_at(.cols = vars(budget_2016, rating, votes, length,N), 
+               .funs = funs('_'= round(mean(.), digits=1))) %>% 
+  rename(budget_2016=budget_2016__,
+         rating=rating__,
+         votes=votes__,
+         length=length__,
+         N=N__) %>% 
+  mutate(budget_2016 = budget_2016/1e6) %>% 
   ungroup()
+
+save(movies_yearly, movies_yearly_action, file='data/movies_yearly.RData')
+
 # movies_yearly %>% 
 #   plot_ly() %>% 
 #   add_markers(~Budget, ~Rating, size=~Votes)
@@ -141,75 +87,42 @@ movies_yearly = movies %>%
 ```
 
 
-```{r readimdb, echo=1}
+```{r readimdb, echo=1:2}
 library(ggplot2movies)
-# imdb_big = read.csv('data/bigbudget.csv')
-# imdb_small = read.csv('data/smallbudget.csv')
-
-DT::datatable(head(movies, 100), options=list(dom='t', scrollX=T, scrollY=T), width='100%')
-```
-
-<br>
-Let's examine the relationship between the number of votes as a proxy for popularity, and it's rating.  For a little bit more manageable data, we'll use yearly means, and only movies that had a known budget.  In addition, I've grouped them by whether they are an action movie or not.
-<br>
-
-```{r}
-movies_yearly = movies %>% 
-  filter(!is.na(budget_cpi)) %>% 
-  mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
-  group_by(year, Action) %>% 
-  summarise_at(.cols=vars(budget_cpi, rating, votes, length), .funs= function(x) round(mean(x), digits=1)) %>% 
-  ungroup()
-
+load(file='data/movies_yearly.RData')
 DT::datatable(movies_yearly, options=list(dom='pt', scrollX=T, scrollY=T), width='100%')
 ```
 
-```{r}
+<br>
+Let's examine the the time trend for ratings and budget. 
+<br>
+
+```{r rating_trend, echo=F}
 movies_yearly %>% 
   plot_ly() %>% 
-  add_markers(~year, ~budget_cpi, color=~Action) %>% 
-  add_lines(~year, ~budget_cpi, color=~Action)
+  add_markers(~year, ~rating, size=~N, color=~budget_2016, colors='Blues', showlegend=F) %>% 
+  theme_plotly()
 ```
 
+For ratings there seems to be a definite curvilinear trend, where initially ratings for movies started high and decreased, but were on the upswing at later years.
 
-```{r plot_movies, eval=1, echo=1}
+Adjusted for inflation, movie budgets don't increase linearly over time as one might expect, and in fact were decreasing towards the end.
 
-  
-  
-  
-movies %>%
-  plot_ly() %>% 
-  add_markers(x=~votes, y=~rating, text = ~title, color=I('#ff5503')) %>%
-  lazerhawk::theme_plotly()
-movies %>%
-  filter(budget>1e6) %>% 
-  plot_ly() %>% 
-  add_markers(x=~year, y=~rating, text = ~title, color=I('#ff5503')) %>%
-  lazerhawk::theme_plotly()
-movies %>%
-  filter(votes > 1000) %>% 
-  plot_ly() %>% 
-  add_markers(x=~year, y=~rating, text = ~title, color=I('#ff6600')) %>%
-  lazerhawk::theme_plotly()
-# imdb_big %>%
-#   plot_ly() %>% 
-#   add_markers(x=~num_voted_users, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
-#   lazerhawk::theme_plotly()
-# imdb_big %>%
-#   plot_ly() %>% 
-#   add_markers(x=~title_year, y=~imdb_score, text = ~movie_title, color=I('#ff5503')) %>%
-#   lazerhawk::theme_plotly()
 
+```{r budget_trend, echo=F}
+movies_yearly %>% 
+  plot_ly() %>% 
+  add_markers(~year, ~budget_2016, size=~N, color=~rating, colors='Blues', showlegend=F) %>% 
+  theme_plotly()
 ```
 
-<br>
-For these big budget movies, having more votes is associated with higher ratings, but less so with increasing popularity.  Let's fit a gam to this.  I will also put in budget (in millions) and year as standard effects.  We'll use a cubic regression spline for our basis, `bs='cr'`.
+Let's fit a gam to the yearly trend for ratings.  I will also put in budget (in millions), movie length, and number of votes as standard effects.  We'll use a cubic regression spline for our basis, `bs='cr'`.
 <br>
 
 ```{r, eval=FALSE}
 library(mgcv)
-gam_model = gam(imdb_score ~ title_year + budget_in_millions + s(num_voted_users, bs='cr'), 
-                data=imdb_big)
+gam_model = gam(rating ~ s(year, bs='cr') + s(budget_2016) + s(votes) + s(length), 
+                data=movies_yearly)
 summary(gam_model)
 ```
 
