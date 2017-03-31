@@ -106,6 +106,7 @@ Let's examine the the time trend for ratings and budget. Size of the points repr
 movies_yearly %>% 
   plot_ly() %>% 
   add_markers(~year, ~rating, color=I('#ff5503'), size=~N, showlegend=F) %>% 
+  add_lines(~year, ~rating, color=I('#ff5503'), showlegend=F) %>% 
   theme_plotly()
 ```
 
@@ -118,6 +119,7 @@ Adjusted for inflation, movie budgets don't increase linearly over time as one m
 movies_yearly %>% 
   plot_ly() %>% 
   add_markers(~year, ~budget_2016, color=I('#ff5503'), size=~N, showlegend=F) %>% 
+  add_lines(~year, ~budget_2016, color=I('#ff5503'), showlegend=F) %>% 
   theme_plotly()
 ```
 
