@@ -1,4 +1,4 @@
-# Extensions, Connections, & Generalizations
+# Extensions
 
 ## Extensions 
 
@@ -60,14 +60,14 @@ follows:
 
 $$ y = X\beta + Z\gamma + \epsilon$$
 
-If you've spent much time with mixed models, that probably looks familiar to you. This penalized regression approach not only looks like the mixed model, we can exploit this to produce the same results.  The mgcv package has many tools for mixed models.
+If you've spent much time with mixed models, that probably looks familiar to you. This penalized regression approach not only looks like the mixed model, we can exploit this to produce the same results.  The <span class="pack">mgcv</span> package has many tools for mixed models.
 
 For this example I will use the sleep study data that comes with the lme4 package. It has reaction times for some tests where 18 subjects were restricted to 3 hours of sleep each night for 10 days. We fit a model with (uncorrelated) random intercepts and random slopes for Days.
 
-```{r gamm, echo=1:7}
+```{r gamm, echo=1:8}
 library(lme4)
-mod_lme4 = lmer(Reaction ~ Days + (1|Subject) + (0 + Days|Subject), sleepstudy, REML=F)
-mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), data=sleepstudy, method='ML')
+mod_lme4 = lmer(Reaction ~ Days + (1|Subject) + (0 + Days|Subject), sleepstudy)
+mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), data=sleepstudy, method='REML')
 
 # summary(mod_lme4)
 # summary(mod_gamm)
@@ -84,3 +84,62 @@ cbind(ranef(mod_lme4)$Subject,
 ```
 
 The results are essentially identical. The <span class="pack">mgcv</span> package can also use <span class="pack">lme4</span> and <span class="pack">nlme</span> under the hood via other functions (<span class="pack">gamm4</span> package and <span class="func">gamm</span> function respectively). Extending GAMs into the mixed model world opens the door to some very powerful modeling possibilities.  
+
+
+### Spatial models
+
+Consider a data set with latitude and longitude coordinates among other covariates used to model some target variable.  A spatial regression analysis might incorporate an approach to incorporate spatial covariance among the observation points (e.g. <span class="emph">kriging</span>).  Such an approach is a special case of <span class="emph">gaussian process</span>.  Know what else happens to be a special case of a gaussian process? That's right, a GAM!  As such we can add spatial models to the sorts of models covered by GAMs too.  The following gives a sense of the syntax.  The mgcv package even has a `'gp'` smooth, because why wouldn't it?
+
+ 
+```{r gamspatpoint, eval=F}
+gam(y ~ s(lat, lon, bs='gp'))  # Matern
+```
+
+What about the discrete case, where the spatial *random effect* is based on geographical regions?  This involves a penalty that is based on the adjacency matrix of the regions, where if there are $g$ regions the adjaceny matrix is a $g \times g$ indicator matrix where 1 indicates region i is conneted to region j, and 0 otherwise.  In addition an approach similar to that for a random effect is used to incorporate observations belonging to specific regions.  You'll be shocked to know that the mgcv package has a smooth option for that, `bs='mrf'`, where `mrf` stands for <span class="emph">markov random field</span>, which is an undirected graph.  Plotting the smooth term is akin to displaying the spatial random effect.
+
+The following shows example code. See the help for `mrf` for more detail.
+
+```{r gamspatdiscrete, eval=F}
+gam(crime ~ s(region, bs = "mrf", xt = polygonListObject), data = df, method = "REML")
+```
+
+
+### My god, it's full of STARs!
+
+The incorporation of additive, mixed, and spatial regression models gets us to STARs or, <span class="">structured additive regression</span> models.  This is an extremely general and powerful modeling tool that can take you very, very far.
+
+## Connections & Generalizations
+
+### Adaptive Basis Function Models
+
+GAMs can be seen as belonging to a family of what are called <span class="emph">adaptive basis function models</span>.  These include random forests, neural nets, and boosting approaches.  GAMs might be seen as a midpoint lying between highly interpretable standard linear models and the more black box methods just mentioned.
+
+
+### Beyond GLM family distributions
+
+The mgcv package provides a plethora of distributions to use in modeling that might useful including:
+
+- tweedie
+- negative binomial
+- ordered categorical
+- beta
+- t
+- zero-inflated poisson (ZIP)
+- cox proportional hazards
+- gaulss Gaussian model for both mean (location) and standard deviation (scale)
+- gevlss same for generalized extreme value
+- ziplss for a hurdle approach to zero-inflation
+- multivariate normal
+- multinomial logistic
+
+### Random Effects
+
+In addition to distribution extensions that could also be incorporated with random effects, providing modeling capabilities not generally offered in mixed model pacakges, mgcv also allows for correlated residuals structure as with nlme, but for the generalized case.  This is especially of interest in the longitudinal case, where one expects residuals for observations closer in time to be more correlated.
+
+### Gaussian Processes
+
+Where the Gaussian distribution is over vectors and defined by a mean vector and covariance matrix, a <span class="emph">Gaussian Process</span> is a *distribution over functions*. A function $f$ is distributed as a Gaussian Process defined by a mean function $m$ and covariance function $k$. They have a close tie to RKHS methods, and generalize commonly used models in spatial modeling (kriging).  In addition, a GP can be interpreted as a standard multilayer perceptron neural net with a single hidden layer consisting of an infinite number of nodes.
+
+$$f\sim \mathcal{GP}(m,k)$$
+
+It turns out that GAMs with a tensor product or cubic spline smooth are maximum a posteriori (MAP) estimates of Gaussian processes with specific covariance functions and a zero mean function. In that sense one might segue nicely to Gaussian processes if familiar with additive models.  The <span class="pack">mgcv</span> package, ... wait for it..., also allows one to use a spline form of Gaussian process `bs='gp'`.
