@@ -2,7 +2,7 @@
 
 ## Using polynomials
 
-A common application in regression to deal with nonlinear relationships involves polynomial regression.  For the predictor in question 
+A common application in regression to deal with nonlinear relationships involves polynomial regression.  For the predictor in question, $x$, we add terms e.g. quadratic ($x^2$), cubic ($x^3$) etc. to get a better fit.  Consider the following data situation.
 
 ```{r datasetup, echo=FALSE}
 set.seed(123)
@@ -44,7 +44,7 @@ newdat %>%
   theme_plotly()
 ```
 
-Part of the reason is that, outside of deterministic relationships due known physical or other causes, you are unlikely to discover a quadratic relationship between variables among found data.  Even when it appears to fit, it is almost certainly overfit due to this reason.  Fitting a polynomial is more akin to enforcing our vision of how the data should be, rather than letting the data speak for itself. Sure, it might be a good approximation some of the time, just as assuming a linear relationship is, but often it's just wishful thinking.
+Part of the reason is that, outside of deterministic relationships due known physical or other causes, you are unlikely to discover a quadratic relationship between variables among found data.  Even when it appears to fit, without a lot of data it is almost certainly <span class="emph">overfit</span> due to this reason.  Fitting a polynomial is more akin to enforcing our vision of how the data should be, rather than letting the data speak for itself. Sure, it might be a good approximation some of the time, just as assuming a linear relationship is, but often it's just wishful thinking.
 
 
 Compare the previous result to the following fit from a generalized additive model.  GAMs are susceptible to extrapolation as is every statistical model ever created.  However, the original fit (in red) is much better. Notice how it was better able to follow the straightened out data points at the high end, rather than continuing the bend the quadratic enforced.
@@ -115,6 +115,6 @@ plot_ly(width=700, data=d) %>%
 ```
 
 
-It's maybe also obvious no transformation is going to help us either in this case.  In general, we'll need tools better suited to more complex relationships, or simply ones that don't require us to overfit/simplify the relationship we see.
+It's maybe also obvious that no transformation is going to help us in this case.  In general, we'll need tools better suited to more complex relationships, or simply ones that don't require us to overfit/simplify the relationship we see, or guess about the form randomly until finding a decent fit.
 
 [^cubic]: The data was actually generated with a cubic polynomial.

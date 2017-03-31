@@ -2,6 +2,10 @@
 
 ## Extensions 
 
+### More bases
+
+There are many options available in <span class="pack"> + age_cen</span> beyond cubic splines, including thin plate, duchon, p-splines and more, including ones for cyclical effects, geographical, and beyond.  See `?smooth.terms` for more information.
+
 ### Interactions
 
 We can implement interactions of multiple smooth terms. The following shows a model in which we could combine the effects of year and budget vis the <span class="func">te</span> function, along with the corresonding predictive plots.  
@@ -67,7 +71,8 @@ For this example I will use the sleep study data that comes with the lme4 packag
 ```{r gamm, echo=1:8}
 library(lme4)
 mod_lme4 = lmer(Reaction ~ Days + (1|Subject) + (0 + Days|Subject), sleepstudy)
-mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), data=sleepstudy, method='REML')
+mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), data=sleepstudy, 
+               method='REML')
 
 # summary(mod_lme4)
 # summary(mod_gamm)

@@ -331,3 +331,35 @@ d4 %>%
 ```
 
 However, as we'll come to learn, we don't really have to worry about this except in the conceptual sense, i.e. being able to control the wiggliness.  The odds of you knowing beforehand the number of knots and where to put them is somewhere between slim and none, so this is a good thing.
+
+
+## Interpreting output for smooth terms
+
+### Effective degrees of freedom
+
+We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
+
+At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll need to go back to using a glm. 
+
+The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k-1 (or k), where k is chosen based on the basis. You can think of it as akin to the number of knots.  There is functionality to choose the k value, but note:
+
+
+> So, exact choice of k is not generally critical: it should be chosen to be large enough that you are reasonably sure of having enough degrees of freedom to represent the underlying 'truth' reasonably well, but small enough to maintain reasonable computational efficiency. Clearly 'large' and 'small' are dependent on the particular problem being addressed.
+
+If you want a more statistical check, see `?gam.check` and `?choose.k`.
+
+Also note the following from the latter help file:
+
+> One scenario that can cause confusion is this: a model is fitted with k=10 for a smooth term, and the EDF for the term is estimated as 7.6, some way below the maximum of 9. The model is then refitted with k=20 and the EDF increases to 8.7 - what is happening - how come the EDF was not 8.7 the first time around? The explanation is that the function space with k=20 contains a larger subspace of functions with EDF 8.7 than did the function space with k=10: one of the functions in this larger subspace fits the data a little better than did any function in the smaller subspace. These subtleties seldom have much impact on the statistical conclusions to be drawn from a model fit, however.
+
+### Deviance explained
+
+```{r rsq, echo=FALSE}
+cat("R-sq.(adj) =   0.51   Deviance explained = 51.8%
+GCV = 0.44245  Scale est. = 0.43351   n = 265")
+```
+
+For the standard Gaussian setting, we can use our R^2^.  Also provided is 'deviance explained', which in this setting is identical to the unadjusted R^2^, but for non-Gaussian families might be preferred. 
+
+The GCV, or generalized cross validation score, can be taken as an estimate of the mean square prediction error based on a leave-one-out cross validation estimation process. Steps can be taken to choose model parameters specifically based on this (it's actually the default, as opposed to, e.g. maximum likelihood).
+

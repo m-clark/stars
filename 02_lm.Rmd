@@ -84,9 +84,9 @@ Now let's go back and visualize the data.  The follow plots both predictors agai
 
 Yikes. We certainly have a positive effect for x1, but it looks rather curvy.  The other predictor doesn't appear to have a relationship that could be classified easily.
 
-### Heteroscedasticity, non-normality etc.
+## Heteroscedasticity, non-normality etc.
 
-In many cases as above, people have some standby methods for dealing with the problem.  For example, the might see the qqplot for the residuals and think some of those cases are 'outliers', perhaps even dropping them from analysis.  Others might try a tranformation of the target variable, for example, in cases of heteroscedasticity (not because of non-normality!) some might take the log.
+In many cases as above, people have some standby methods for dealing with the problem.  For example, they might see the qqplot for the residuals and think some of those cases are 'outliers', perhaps even dropping them from analysis.  Others might try a transformation of the target variable, for example, in cases of heteroscedasticity (not because of non-normality!) some might take the log.
 
 
 ```{r loglm, eval=FALSE}
@@ -138,11 +138,11 @@ augment(modlog) %>%
 We continue to see some poor fitting cases and now our fit is flattening even more than it was. 
 
 
-This is a fairly typical result.  Transformations often exacerbate data issues or fail to help. What's more, some of them lead to difficult to interpret coefficients, or aren't even applicable (categorical, ordinal targets).  
+This is a fairly typical result.  Transformations often exacerbate data issues or fail to help. What's more, some of them lead to more difficult interpretation, or aren't even applicable (e.g. categorical, ordinal targets).  
 
 Outliers, if there was actually a standard for deeming something as such, are just indicators that your model doesn't capture the data generating process in some fashion.  Cutting data for that reason hasn't been acceptable for some time.
 
-Data abounds where a standard linear model doesn't do a good job. There maybe nonlinear relationships as above, dependency in the observations, known non-Gaussian data etc.  
+Data abounds where a standard linear model performs poorly or doesn't do a good enough job capturing the nuances of the data. There may be nonlinear relationships as above, dependency in the observations, known non-Gaussian data etc.  One should be prepared to use models better suited to the situation, rather than torturing the data to fit a simplified modeling scheme.
 
 
 [^basergraphics]: In case you are wondering, yes, these diagnostic plots are in fact base R graphics, and they still can look good, at least when I'm doing them.

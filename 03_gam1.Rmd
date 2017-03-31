@@ -31,7 +31,7 @@ While this is better, again it is unsatisfactory. The separate fits are unconnec
 
 ## Introducing GAMs
 
-`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a glm, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
+`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a GLM, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
 
 $$y = x + \epsilon$$
 
@@ -49,23 +49,23 @@ $$f(x) = \gamma_0 + \gamma_1x +\gamma_1x^l$$
 
 In that case $l=2$ and we have our standard regression with a quadratic term, but in fact, we can use this approach to produce the bases for any polynomial.  
 
-As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a glm!  However, the additional point is that it uses <span class="emph">penalized estimation</span>, something that is quite common in some modeling contexts, and not common enough in applied research.
+As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a GLM!  However, the additional point is that it uses <span class="emph">penalized estimation</span>, something that is quite common in some modeling contexts, and not common enough in applied research.
 
 Again consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
 
 
-$$l_p(\beta)= l(\beta) - \frac{1}{2}\lambda\sum\beta^2$$
+$$l_p(\beta)= l(\beta) - \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
 If you prefer least squares as the loss function, we can put it as:
 
-$$\mathcal{Loss} = \sum (y-X\beta)^2 + \frac{1}{2}\lambda\sum\beta^2$$
-So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
+$$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
+So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$).  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
 
 In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM (e.g. lasso or ridge regression), and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.
 
 
 ## Polynomial spline
 
-Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The more technically minded may refer to the [technical details][Technical details].  Conceptually it is useful to continue to think of the piecewise approach we talked about before, however, we'll end up with a smoother and connected result when all is said and done.
+Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The brave may refer to the [technical details][Technical details] section.  Conceptually it is useful to continue to think of the piecewise approach we talked about before, however, we'll end up with a smoother and connected result when all is said and done.
 
 ```{r polysplinedemo, echo=FALSE}
 d %>% 
