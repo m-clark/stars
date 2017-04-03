@@ -8,9 +8,11 @@ One of the more powerful modeling packages in R comes with its installation[^gam
 
 So GAMs can be seen as a special type of GLM, that extends the model to incorporate nonlinear and other relationships.  Behind the scenes, extra columns are added to our model matrix to do this, but their associated coefficients are penalized to help avoid overfitting.
 
-As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here[^penalty].  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
+As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, mgcv also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here.  For those new to this, it's important to add the concept and technique to your statistcal modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to you'll need to install it, the data object is called 'movies'.  For information, type `r ?movies` after loading the package.  However, our example will concern yearly averages based on that data set `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`.
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called 'movies'.  For information, type `r ?movies` after loading the package.  
+
+However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (length in minutes > 60).
 
 
 ```{r movies_data_setup, eval=FALSE, echo=FALSE, cache=TRUE}
@@ -25,19 +27,18 @@ yearly_cpi = monthly_cpi %>%
   summarize(cpi = mean(CPIAUCSL)) %>% 
   mutate(adj_factor = cpi/cpi[year == 2016])
 
-movies = left_join(movies, yearly_cpi) %>% 
-  filter(!is.na(budget)) %>% 
-  mutate(budget_2016 = budget/adj_factor)
+movies2 = left_join(movies, yearly_cpi) %>% 
+  # filter(!is.na(budget)) %>% 
+  mutate(budget_2016 = budget/adj_factor,
+         budget_2016 = if_else(title=="Voyna i mir", 10000000/adj_factor, budget_2016))  # correction see https://en.wikipedia.org/wiki/List_of_most_expensive_films#Most_expensive_films_.28adjusted_for_inflation.29
 
-
-
-movies_yearly_action = movies %>% 
-  filter(!is.na(budget_2016)) %>% #length>60, 
+movies_yearly_action = movies2 %>% 
+  filter(length>60) %>% #length>60,
   mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
   group_by(year, Action) %>%
   mutate(N=n()) %>% 
   summarise_at(.cols = vars(budget_2016, rating, votes, length, N), 
-               .funs = funs('_'= round(mean(.), digits=1))) %>% # unclear why renaming variables based on function is REQUIRED
+               .funs = funs('_'= round(mean(., na.rm=T), digits=1))) %>% # unclear why renaming variables based on function is REQUIRED
   rename(budget_2016=budget_2016__,
          rating=rating__,
          votes=votes__,
@@ -46,15 +47,16 @@ movies_yearly_action = movies %>%
   mutate(budget_2016 = budget_2016/1e6,
          votes = votes/1000,
          length = length/60) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(N>5)
 
 
-movies_yearly = movies %>% 
-  filter(!is.na(budget_2016)) %>% #length>60, 
+movies_yearly = movies2 %>% 
+  filter(length>=60) %>% #length>60,
   group_by(year) %>% 
   mutate(N=n()) %>% 
   summarise_at(.cols = vars(budget_2016, rating, votes, length,N), 
-               .funs = funs('_'= round(mean(.), digits=1))) %>% 
+               .funs = funs('_'= round(mean(., na.rm=T), digits=1))) %>% 
   rename(budget_2016=budget_2016__,
          rating=rating__,
          votes=votes__,
@@ -63,31 +65,28 @@ movies_yearly = movies %>%
   mutate(budget_2016 = budget_2016/1e6,
          votes = votes/1000,
          length = length/60) %>% 
-  ungroup()
+  ungroup() %>% 
+  filter(N>10)
 
-save(movies_yearly, movies_yearly_action, file='data/movies_yearly.RData')
+save(movies2, movies_yearly, movies_yearly_action, file='data/movies_yearly.RData')
 
-# movies_yearly %>% 
-#   plot_ly() %>% 
-#   add_markers(~Budget, ~Rating, size=~Votes)
-# movies_yearly %>% 
-#   add_predictions(model=gam(Rating ~ s(year), data=.)) %>% 
-#   plot_ly() %>% 
-#   add_markers(~year, ~Rating, size=~Votes) %>% 
-#   add_lines(~year, ~pred)
-# movies_yearly %>% 
-#   add_predictions(model=gam(Rating ~ s(year, by=Action, bs='fs'), data=.)) %>% 
-#   plot_ly() %>% 
-#   add_markers(~year, ~Rating, size=~Votes) %>% 
-#   add_lines(~year, ~pred, color=~Action)
-# movies_yearly %>% 
-#   add_predictions(model=gam(Rating ~ s(year, by=Action, bs='fs'), data=.)) %>% 
-#   ggplot(aes(year, Rating)) +
-#   geom_point() +
-#   geom_line(aes(y=pred, color=Action)) +
-#   theme_ipsum_rc() +
-#   lazerhawk::theme_trueMinimal() 
-# ggplotly()
+
+# lake data from http://www.lre.usace.army.mil/Missions/Great-Lakes-Information/Great-Lakes-Water-Levels/Historical-Data/
+lakes = read_csv('data/GLHYD_data_metric.csv') %>% 
+  mutate(month_num = rep(1:12, n_distinct(year)),
+         month = factor(month)) %>% 
+  gather(key=lake, value=meters, -month, -month_num, -year, factor_key=T) %>% 
+  mutate(lake = relevel(lake, 'Ontario'))
+# lakes = read_csv('data/GLHYD_data_english.csv') %>% 
+#   mutate(month_num = rep(1:12, n_distinct(year))) %>% 
+#   gather(key=lake, value=meters, -month, -month_num, -year, factor_key=T)
+
+lakes_yearly = lakes %>%
+  group_by(year, lake) %>% 
+  summarise(meanHeight=mean(meters))
+
+save(lakes, lakes_yearly, file='data/greatLakes.RData')
+
 
 ```
 
@@ -105,21 +104,27 @@ Let's examine the the time trend for ratings and budget. Size of the points repr
 ```{r rating_trend, echo=F}
 movies_yearly %>% 
   plot_ly() %>% 
-  add_markers(~year, ~rating, color=I('#ff5503'), size=~N, showlegend=F) %>% 
+  add_markers(~year, ~rating, color=I('#ff5503'), size=~N, showlegend=F, name='') %>% 
   add_lines(~year, ~rating, color=I('#ff5503'), showlegend=F) %>% 
+  layout(title = "Yearly Trend for Ratings", 
+         xaxis = list(title = "Year", showgrid = F),
+         yaxis = list(title = "Average Rating")) %>% 
   theme_plotly()
 ```
 
 For ratings there seems to be a definite curvilinear trend, where initially ratings for movies started high and decreased, but were on the upswing at later years.
 
-Adjusted for inflation, movie budgets don't increase linearly over time as one might expect, and in fact were decreasing towards the end.
+Adjusted for inflation, movie budgets don't increase linearly over time as one might expect, and in fact were decreasing towards the end. Note that we only have *adjusted* budget data for 1948 on.
 
 
 ```{r budget_trend, echo=F}
 movies_yearly %>% 
   plot_ly() %>% 
-  add_markers(~year, ~budget_2016, color=I('#ff5503'), size=~N, showlegend=F) %>% 
+  add_markers(~year, ~budget_2016, color=I('#ff5503'), size=~N, showlegend=F, name='') %>% 
   add_lines(~year, ~budget_2016, color=I('#ff5503'), showlegend=F) %>% 
+  layout(title = "Yearly Trend for Budgets", 
+         xaxis = list(title = "Year", showgrid = F),
+         yaxis = list(title = "Average Budget in Millions")) %>% 
   theme_plotly()
 ```
 
@@ -135,15 +140,15 @@ gam_model = gam(rating ~ s(year, bs='cr') + budget_2016 + votes + length,
 summary(gam_model)
 ```
 
-The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. For example, in this case there is no relationship between budget and rating, whereas adding an hour to the film might bump the rating around half a point.
+The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. For example, in this case there is no relationship between budget and rating, whereas adding an hour to the film might bump up the rating around near a point[^longmovie].
 
 ```{r parametric, echo=FALSE}
 cat("Parametric coefficients:
              Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 4.8976286  0.5393570   9.080 6.96e-12 ***
-budget_2016 0.0008481  0.0076005   0.112    0.912    
-votes       0.0247742  0.0243371   1.018    0.314    
-length      0.5706696  0.3687635   1.548    0.128     ")
+(Intercept)  4.336424   0.945088   4.588 3.35e-05 ***
+budget_2016 -0.001436   0.003166  -0.453    0.652    
+votes        0.046273   0.121571   0.381    0.705    
+length       0.885090   0.586945   1.508    0.138     ")
 ```
 
 
@@ -152,18 +157,18 @@ The next part contains our information regarding the smooth terms, of which ther
 
 ```{r nonparametric, echo=FALSE}
 cat("Approximate significance of smooth terms:
-          edf Ref.df    F p-value    
-s(year) 7.309  8.283 8.07 1.6e-07 ***")
+          edf Ref.df     F p-value    
+s(year) 7.136  8.129 28.88  <2e-16 ***")
 ```
 
-While this suggests a statistically significant effect, it's important to note there is not a precisely defined p-value in this setting- it clearly states 'approximate significance'.  For some more details see the [technical section][Technical details] or [my document](https://m-clark.github.io/docs/GAM.html), but for now, we'll  start with the <span class="emph">effective degrees of freedom</span>, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df). 
+While this suggests a statistically significant effect, it's important to note there is not a precisely defined p-value in this setting- it clearly states 'approximate significance'.  For some more details see the [technical section][interpreting output for smooth terms] or [my document](https://m-clark.github.io/docs/GAM.html), but for now, we'll  start with the <span class="emph">effective degrees of freedom</span>, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df). 
 
-The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k-1, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10. Basically if it's 1, just leave it as a linear component, or if it's close to k, maybe bump up the default to allow for more wiggliness.
+The thing to note is that the edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k-1, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10. Basically if it's 1, just leave it as a linear component, or if it's close to k, maybe bump up the default to allow for more wiggliness.
 
 
 ### Visualizing the effects
 
-While helpful to some extent, the best way to interpret smooth terms is visually.  The ability to do so is easy, you can just use the <span class="func">plot</span> method on the model object. However, the default plot may be difficult to grasp at first.  It is a [component plot](https://en.wikipedia.org/wiki/Partial_residual_plot#CCPR_plot), which plots the original variable against the linear combination of its basis functions, i.e. the sum of each basis function multiplied by its respective coefficient. For example, if we were using a quadratic polynomial, it would be the plot of $x$ against $b_1\cdot x + b_2\cdot x^2$. For GAMs, $y$ is also centered, and what you end up with is something like the following.
+While the statistical result is helpful to some extent, the best way to interpret smooth terms is visually.  The ability to do so is easy, you can just use the <span class="func">plot</span> method on the model object. However, the default plot may be difficult to grasp at first.  It is a [component plot](https://en.wikipedia.org/wiki/Partial_residual_plot#CCPR_plot), which plots the original variable against the linear combination of its basis functions, i.e. the sum of each basis function multiplied by its respective coefficient. For example, if we were using a quadratic polynomial, it would be the plot of $x$ against $b_1\cdot x + b_2\cdot x^2$. For GAMs, $y$ is also centered, and what you end up with is something like the following.
 
 ```{r gamplot, dev='svglite'}
 plot(gam_model)
@@ -182,16 +187,17 @@ You of course can look at predictions at any relevant values for the covariates,
 
 ```{r gam_predict}
 movies_yearly %>% 
+  na.omit() %>%
   transmute(budget_2016 = mean(budget_2016),
             length = mean(length),
             votes = 1,
-            year=1948:2005) %>% 
-  add_predictions(gam_model) %>% 
+            year=year) %>% 
+  add_predictions(gam_model, var='Predicted_Rating') %>% 
   plot_ly() %>% 
-  add_lines(~year, ~pred)
+  add_lines(~year, ~Predicted_Rating)
 ```
 
-In the end, controlling for budget, length, and popularity, movie quality decreased notably until 1960, and remained at that level until the late 90s, when quality increased almost as dramatically.
+In the end, controlling for budget, length, and popularity, movie quality decreased notably until the 70s, and remained at that level until the late 90s, when quality increased even more dramatically.
 
 
 
@@ -202,10 +208,9 @@ In the end, controlling for budget, length, and popularity, movie quality decrea
 
 [^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM).
 
-[^penalty]: a quadratic penalty specifically
 
-[^imdb]: One might think this would be more interesting data, but there is actually not much variability in scores.  They have a mean of `r round(mean(movies$rating), 1)` and standard deviation, of `r round(sd(movies$rating), 1)`, with some skew (notable duds).  Other variables are notable rounded.
-
-[^atmeans]: If we had put votes at its mean, you would basically duplicate the original plot.
+[^longmovie]: Presumably we have to justify the time spent watching longer movies. Note also I personally consider the length effect significant, despite the p-value.
 
 [^allthewaytozero]: You can actually penalize the covariate right out of the model if desired, i.e. edf=0.
+
+[^atmeans]: If we had put votes at its mean, you would basically duplicate the previous plot.

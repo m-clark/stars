@@ -1,0 +1,118 @@
+# Exercises
+
+
+## Exercise 1 
+
+<img src="img/helmet.jpg" style="display:block; margin: 0 auto;" width=50%>
+
+Let's start off with a single covariate.  We'll use the motorcycle data set, which is a data frame giving a series of measurements of head acceleration in a simulated motorcycle accident, used to test crash helmets.
+
+- times: in milliseconds after impact
+- accel: in g
+
+
+```{r, mcycle, echo=1}
+data('mcycle', package='MASS')
+qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) + 
+  lazerhawk::theme_trueMinimal()
+```
+
+Run a gam predicting head acceleration by time with time as a smooth term.
+
+You can plot the result with visreg as follows. If you haven't installed it you'll need to do so.
+
+```{r eval=FALSE}
+library(visreg)
+visreg(my_gam_model, partial=F)
+```
+
+
+## Exercise 2
+
+```{r moviepic, echo=FALSE, eval=T}
+movies2 %>% 
+  top_n(n=20, wt=budget_2016) %>% 
+  arrange(desc(budget_2016)) %>% 
+  select(title, year, budget, budget_2016, rating) %>% 
+  mutate_at(vars(starts_with('budg')), function(x) round(x/1e6)) %>% 
+  DT::datatable(options=list(dom='tp'), caption='Top 20 most expensive movies (up until 2005)', 
+                style='bootstrap', rownames=F)
+```
+
+
+Next we'll use a the yearly movie data consisting of the following variables.
+
+- **year**: Year of release.
+- **budget_2016**: Average budget in millions 2016 US dollars
+- **length**: Average length in minutes.
+- **rating**: Average IMDB user rating.
+- **votes**: Average number of IMDB users who rated movies that year, in thousands.
+- **N**: The number of movies that went into the averaging.
+
+
+### 2a
+
+Run an <span class="func">lm/glm</span> with `budget_2016` as the target and your choice of covariates.
+
+### 2b
+
+Run an <span class="func">gam</span> with the same model but no smooth terms (i.e. just change the function to <span class="func">gam</span>)
+
+### 2c
+
+Now run a <span class="func">gam</span> with any smooth terms you care to.  What is your interpretation of the results?
+
+
+## Exercise 3
+
+<img src="img/cobra.jpg" style="display:block; margin: 0 auto;" width=75%>
+
+Use the <span class="objclass">movies_yearly_action</span> data. This data is the same as the yearly data, but broken out into whether the movie was categorized as being and Action flick (possibly in combination of another genre) or Other. Run a GAM where the outcome is budget in millions of 2016 dollars.  
+
+```{r exampleAction, eval=FALSE, echo=1}
+gam_model_byAction = gam(budget_2016 ~  s(year, by=Action) + Action + votes + length, 
+                         data=movies_yearly_action)
+pd = visreg::visreg(gam_model_byAction, xvar='year', by='Action', plot=F)$fit
+pd %>% 
+  rename(fit = visregFit) %>% 
+  plot_ly() %>% 
+  add_lines(~year, ~fit, color=~Action) %>% 
+  theme_plotly()
+```
+
+Plot the result with visreg as follows.
+
+```{r eval=FALSE}
+visreg::visreg(gam_model_byAction, xvar='year', by='Action', 
+               overlay=T, partial=F)
+```
+
+
+What trends do you see? Is the yearly trend the same for action movies vs other movies? Do you think both trends should be allowed to 'wiggle'?
+
+
+## Exercise 4
+
+<img src="img/lakes.jpg" style="display:block; margin: 0 auto;">
+
+Keep it local with the following Great Lakes data set. The following model uses a gaussian process smooth for year and a cyclical p-spline for the monthly effect, both by the corresponding lake. I've increased k for the year effect, and the note the start and end for the cyclic spline.  As a starting point to play with the data, rerun with `bs='ps'` (a regular p-spline) for the month effect. Do you think using the cyclic option was valid?
+
+```{r greatLakes, cache=T}
+load('data/greatLakes.RData')
+
+gam_monthly_cycle = gam(meters*10 ~ lake + s(year, by=lake, bs='gp', k=30) 
+                        + s(month_num, bs='cp', by=lake), data=lakes)
+summary(gam_monthly_cycle)
+monthpd = visreg(gam_monthly_cycle, xvar='month_num', by='lake', overlay=T, plot=F)$fit
+yearpd = visreg(gam_monthly_cycle, xvar='year', by='lake', overlay=T, plot=F)$fit
+
+monthpd %>% 
+  ggplot() +
+  geom_line(aes(x=month_num, y=visregFit)) + 
+  facet_wrap(~lake, scales='free_y')
+yearpd %>% 
+  ggplot() +
+  geom_line(aes(x=year, y=visregFit)) + 
+  facet_wrap(~lake, scales='free_y')
+```
+

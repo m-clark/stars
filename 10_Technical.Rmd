@@ -1,7 +1,8 @@
 # Technical details
 
+## A detailed example
 
-Polynomial splines seek to remedy the above problems by creating a smooth function for the term of interest, while still taking this piecewise type of approach.  To demonstrate, we'll create a polynomial spline by hand. The following is based on Fahrmeier et al. (2013).
+The following will demonstrate a polynomial spline by hand. It is based on Fahrmeier et al. (2013).
 
 The approach is defined as follows, with $\kappa$ knots on the interval $[a,b]$ as $a=\kappa_1 < ... < \kappa_m =b$:
 

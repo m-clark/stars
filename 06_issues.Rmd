@@ -1,1 +1,17 @@
 # Issues
+
+There are some complexities associated with GAMs that will take some getting used to.
+
+- **Choice of distribution**: With <span class="pack">mgcv</span> you have more options than the standard GLM, so put some thought into what you think might best represent the data generating process.
+
+- **Choice of smooth**: Some might be particularly appropriate to a given situation (e.g. spatial). In many situations you'll have a choice. They should not lead to fundamentally different conclusions though.
+
+- **Choosing whether to keep an effect linear**: Sometimes it may look like the effect isn't nonlinear or much more more than linear, and a choice will have to be made whether to go the simpler route.  If `k=1`, this is straightforward. If not exactly, you will have to make a choice.
+
+- **Diagnostics**: There are some additional diagnostics to consider, such as the `k` parameter.  Concurvity, which is collinearity for the GAM setting, also comes into play.
+
+- **Model comparison**: In general one can use AIC as with standard GLMs, and in addition one has the GCV statistic. However, there are special considerations for an ANOVA style approach, so see `?anova.gam` for details.
+
+- **Fuzzy p-values**: For folks that are used to complex models, e.g. penalized regression, mixed models, machine learning techniques, this is not new.  For those new to such models, you must unlearn what you have learned.
+
+- **Bayesian approaches**:  The <span class="pack">brms</span> package can take your GAM to the Bayesian setting.
