@@ -8,7 +8,7 @@ There are many options available in <span class="pack">mgcv</span> beyond cubic 
 
 ### Interactions
 
-We can implement interactions of multiple smooth terms. The following shows a model in which we could combine the effects of year and budget vis the <span class="func">te</span> function, along with the corresonding predictive plots.  Note that the 3d is interactive, so twist it however you like to see what's going on.
+We can implement interactions of multiple smooth terms. The following shows a model in which we could combine the effects of year and budget via the <span class="func">te</span> function, along with the corresponding predictive plots.  Note that the 3d is interactive, so twist it however you like to see what's going on.
 
 ```{r gam2d, fig.show='hide', echo=1}
 gam_model_2d = gam(rating ~  te(year, budget_2016),
@@ -91,14 +91,14 @@ The results are essentially identical. The <span class="pack">mgcv</span> packag
 
 ### Spatial models
 
-Consider a data set with latitude and longitude coordinates among other covariates used to model some target variable.  A spatial regression analysis might incorporate an approach to incorporate spatial covariance among the observation points (e.g. <span class="emph">kriging</span>).  Such an approach is a special case of <span class="emph">gaussian process</span>.  Know what else happens to be a special case of a gaussian process? That's right, a GAM!  As such we can add spatial models to the sorts of models covered by GAMs too.  The following gives a sense of the syntax.  The mgcv package even has a `'gp'` smooth, because why wouldn't it?
+Consider a data set with latitude and longitude coordinates among other covariates used to model some target variable.  A spatial regression analysis might incorporate an approach to incorporate spatial covariance among the observation points (e.g. <span class="emph">kriging</span>).  Such an approach is a special case of <span class="emph">Gaussian process</span>.  Know what else happens to be a special case of a Gaussian process? That's right, a GAM!  As such we can add spatial models to the sorts of models covered by GAMs too.  The following gives a sense of the syntax.  The mgcv package even has a `'gp'` smooth, because why wouldn't it?
 
  
 ```{r gamspatpoint, eval=F}
 gam(y ~ s(lat, lon, bs='gp'))  # Matern
 ```
 
-What about the discrete case, where the spatial *random effect* is based on geographical regions?  This involves a penalty that is based on the adjacency matrix of the regions, where if there are $g$ regions the adjaceny matrix is a $g \times g$ indicator matrix where 1 indicates region i is conneted to region j, and 0 otherwise.  In addition an approach similar to that for a random effect is used to incorporate observations belonging to specific regions.  You'll be shocked to know that the mgcv package has a smooth option for that, `bs='mrf'`, where `mrf` stands for <span class="emph">markov random field</span>, which is an undirected graph.  Plotting the smooth term is akin to displaying the spatial random effect.
+What about the discrete case, where the spatial *random effect* is based on geographical regions?  This involves a penalty that is based on the adjacency matrix of the regions, where if there are $g$ regions the adjacency matrix is a $g \times g$ indicator matrix where 1 indicates region i is connected to region j, and 0 otherwise.  In addition an approach similar to that for a random effect is used to incorporate observations belonging to specific regions.  You'll be shocked to know that the mgcv package has a smooth option for that, `bs='mrf'`, where `mrf` stands for <span class="emph">Markov random field</span>, which is an undirected graph.  Plotting the smooth term is akin to displaying the spatial random effect.
 
 The following shows example code. See the help for `mrf` for more detail.
 
@@ -137,7 +137,7 @@ The mgcv package provides a plethora of distributions to use in modeling that mi
 
 ### Random Effects
 
-In addition to distribution extensions that could also be incorporated with random effects, providing modeling capabilities not generally offered in mixed model pacakges, mgcv also allows for correlated residuals structure as with nlme, but for the generalized case.  This is especially of interest in the longitudinal setting, where one expects residuals for observations closer in time to be more correlated.
+In addition to distribution extensions that could also be incorporated with random effects, providing modeling capabilities not generally offered in mixed model packages, mgcv also allows for correlated residuals structure as with nlme, but for the generalized case.  This is especially of interest in the longitudinal setting, where one expects residuals for observations closer in time to be more correlated.
 
 ### Gaussian Processes
 

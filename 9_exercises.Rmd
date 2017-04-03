@@ -19,7 +19,7 @@ qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) +
 
 Run a gam predicting head acceleration by time with time as a smooth term.
 
-You can plot the result with visreg as follows. If you haven't installed it you'll need to do so.
+You can plot the result with <span class="pack">visreg</span> as follows. If you haven't installed it you'll need to do so.
 
 ```{r eval=FALSE}
 library(visreg)
@@ -95,7 +95,7 @@ What trends do you see? Is the yearly trend the same for action movies vs other 
 
 <img src="img/lakes.jpg" style="display:block; margin: 0 auto;">
 
-Keep it local with the following Great Lakes data set. The following model uses a gaussian process smooth for year and a cyclical p-spline for the monthly effect, both by the corresponding lake. I've increased k for the year effect, and the note the start and end for the cyclic spline.  As a starting point to play with the data, rerun with `bs='ps'` (a regular p-spline) for the month effect. Do you think using the cyclic option was valid?
+Keep it local with the following Great Lakes data set. The following model uses a Gaussian process smooth for year and a cyclical p-spline for the monthly effect, both by the corresponding lake. I've increased k for the year effect, and the note the start and end for the cyclic spline.  As a starting point to play with the data, rerun with `bs='ps'` (a regular p-spline) for the month effect. Do you think using the cyclic option was valid?
 
 ```{r greatLakes, cache=T}
 load('data/greatLakes.RData')
