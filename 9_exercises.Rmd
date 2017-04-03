@@ -11,7 +11,7 @@ Let's start off with a single covariate.  We'll use the motorcycle data set, whi
 - accel: in g
 
 
-```{r, mcycle, echo=1}
+```{r mcycle, echo=1}
 data('mcycle', package='MASS')
 qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) + 
   lazerhawk::theme_trueMinimal()
@@ -21,7 +21,7 @@ Run a gam predicting head acceleration by time with time as a smooth term.
 
 You can plot the result with <span class="pack">visreg</span> as follows. If you haven't installed it you'll need to do so.
 
-```{r eval=FALSE}
+```{r visregdemo, eval=FALSE}
 library(visreg)
 visreg(my_gam_model, partial=F)
 ```
@@ -82,7 +82,7 @@ pd %>%
 
 Plot the result with visreg as follows.
 
-```{r eval=FALSE}
+```{r visAction, eval=FALSE}
 visreg::visreg(gam_model_byAction, xvar='year', by='Action', 
                overlay=T, partial=F)
 ```
