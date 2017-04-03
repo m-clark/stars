@@ -360,7 +360,7 @@ cat("R-sq.(adj) =   0.51   Deviance explained = 51.8%
 GCV = 0.44245  Scale est. = 0.43351   n = 265")
 ```
 
-For the standard Gaussian setting, we can use our R^2^.  Also provided is 'deviance explained', which in this setting is identical to the unadjusted R^2^, but for non-Gaussian families might be preferred. 
+For the standard Gaussian setting, we can use our R^2^.  Also provided is '[deviance explained](https://en.wikipedia.org/wiki/Deviance_%28statistics%29)', which in this setting is identical to the unadjusted R^2^, but for non-Gaussian families would be preferred. 
 
 The GCV, or generalized cross validation score, can be taken as an estimate of the mean square prediction error based on a leave-one-out cross validation estimation process. Steps can be taken to choose model parameters specifically based on this (it's actually the default, as opposed to, e.g. maximum likelihood).
 
