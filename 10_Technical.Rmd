@@ -20,7 +20,7 @@ More generally and cleanly:
 
 $$y = f(x) + e = \sum_{j=1}^{d}B_j(x)\gamma_j + e$$
 
-Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $X$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  It looks complicated, but you've done this before.  Let's go back to the quadratic polynomial, there the basis function $B$ maps x to x and x^2^.
+Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $X$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  It looks complicated, but you've done this before.  Let's go back to the quadratic polynomial, there the basis function includes an intercept, x and x^2^.
 
 $$f(x) = \gamma_0 + \gamma_1x + \gamma_1x^l$$
 
@@ -335,6 +335,19 @@ However, as we'll come to learn, we don't really have to worry about this except
 
 
 ## Interpreting output for smooth terms
+
+###  Penalized regression
+
+Consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
+
+
+$$l_p(\beta)= l(\beta) - \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
+
+If you prefer least squares as the loss function, we can put it as:
+
+$$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
+
+So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$).  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
 
 ### Effective degrees of freedom
 

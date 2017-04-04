@@ -39,7 +39,7 @@ Now the GAM:
 
 $$y = f(x) + \epsilon$$
 
-It involves choosing a <span class="emph">basis</span>, which in technical terms means choosing a space of functions for which $f$ is some element of it.  As we'll see later, an example would be choosing a cubic spline for the basis.  Choosing a basis also means we're selecting basis functions, which will actually go into the analysis.  We can add more detail as follows:
+It involves choosing a <span class="emph">basis</span>, which in technical terms means choosing a space of functions for which $f$ is some element of it.  On the practical side it is a means to capture nonlinear relationships. As we'll see later, an example would be choosing a cubic spline for the basis.  Choosing a basis also means we're selecting basis functions, which will actually go into the analysis.  We can add more detail as follows:
 
 $$y = f(x) + \epsilon = \sum_{j=1}^{d}B_j(x)\gamma_j + \epsilon$$
 
@@ -54,11 +54,12 @@ As far as mechanics go, these basis functions become extra columns in the data, 
 Again consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
 
 
-$$l_p(\beta)= l(\beta) - \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
+$$l_p(\beta)= l(\beta) - \color{darkred}{\mathcal{penalty}}$$
 If you prefer least squares as the loss function, we can put it as:
 
-$$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
-So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$).  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
+$$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\mathcal{penalty}}$$
+
+The penalty regards the size of the coefficients for the smooth terms in our model.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  For a little more detail visit the [technical section][Penalized regression].
 
 In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM (e.g. lasso or ridge regression), and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.
 

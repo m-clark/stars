@@ -9,19 +9,26 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 ## Outline
 
 ##### Why
+
 - demo where lm fails
     - vs traditional ways of dealing with problems that arise
 
-##### Segue: standard polynomial
+##### Transition: standard polynomial
+
 - where works
-- where overfits
 - where isn't applicable/fails
 
-##### Introduce GAM
+##### Introducing GAMs
+
+- basic info
+- getting started
 
 ##### Issues
 
+- things to get used to
+
 ##### Extensions & Ties to other
+
 - smooths
 - Random effects
 - GP
@@ -30,9 +37,10 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 
 
 ##### Technicals
+
+- by-hand example
 - penalized regression
-- choice of smooth
-- choice/estimation of df
+
 
 
 
