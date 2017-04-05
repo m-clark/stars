@@ -2,7 +2,7 @@
 
 The standard linear model is ubiquitous in statistical training and application, and for good reason.  It is simple to do and easy to understand. Let's go ahead and do one to get things started.
 
-```{r demolmdat, echo=-(1:4), eval=-6}
+```{r demolmdat, echo=F}
 set.seed(123)
 library(mgcv)
 dat = gamSim(1,n=400,dist="normal",scale=1, verbose=F)
@@ -53,8 +53,8 @@ Some issues might be present, as we might be getting a little more variance with
 ```{r plotlmfit, echo=FALSE, dev='svg'}
 augment(mod) %>% 
   ggplot(aes(x=.fitted, y=y)) +
-  geom_point(alpha=.25) + 
-  geom_smooth(se=F, color='#ff5503') +
+  geom_point(alpha=.25, color='#ff5503') + 
+  geom_smooth(se=F, color='#03b3ff') +
   labs(title='Fitted vs. Observed') +
   theme_ipsum_rc() +
   theme_trueMinimal()
@@ -69,8 +69,8 @@ Now let's go back and visualize the data.  The follow plots both predictors agai
   select(x1, x2, y) %>% 
   gather(key=variable, value=Predictor, -y) %>% 
   ggplot(aes(x=Predictor, y=y)) +
-  geom_point(alpha=.25) + 
-  geom_smooth(aes(color=variable), se=F) +
+  geom_point(alpha=.25, color='#ff5503') + 
+  geom_smooth(aes(), color='#03b3ff', se=F) +
   facet_grid(~variable) + 
   labs(title='Fitted vs. Observed') +
   theme_ipsum_rc() +
@@ -128,8 +128,8 @@ The transformation may have helped in some ways, but made other things worse.
 ```{r plotloglmfit, echo=FALSE, dev='svg'}
 augment(modlog) %>% 
   ggplot(aes(x=.fitted, y=log.y.)) +
-  geom_point(alpha=.25) + 
-  geom_smooth(se=F, color='#ff5503') +
+  geom_point(alpha=.25, color='#ff5503') + 
+  geom_smooth(se=F, color='#03b3ff') +
   labs(title='Fitted vs. Observed', y='log(y)') +
   theme_ipsum_rc() +
   theme_trueMinimal()
@@ -140,7 +140,7 @@ We continue to see some poor fitting cases and now our fit is flattening even mo
 
 This is a fairly typical result.  Transformations often exacerbate data issues or fail to help. What's more, some of them lead to more difficult interpretation, or aren't even applicable (e.g. categorical, ordinal targets).  
 
-Outliers, if there was actually a standard for deeming something as such, are just indicators that your model doesn't capture the data generating process in some fashion.  Cutting data for that reason hasn't been acceptable for some time.
+Outliers, if there was actually a standard for deeming something as such, are just indications that your model doesn't capture the data generating process in some fashion.  Cutting data out of the modeling process for that reason hasn't been acceptable for a long time (if it ever was).
 
 Data abounds where a standard linear model performs poorly or doesn't do a good enough job capturing the nuances of the data. There may be nonlinear relationships as above, dependency in the observations, known non-Gaussian data etc.  One should be prepared to use models better suited to the situation, rather than torturing the data to fit a simplified modeling scheme.
 

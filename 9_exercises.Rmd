@@ -19,7 +19,7 @@ qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) +
 
 Run a gam predicting head acceleration by time with time as a smooth term.
 
-You can plot the result with <span class="pack">visreg</span> as follows. If you haven't installed it you'll need to do so.
+You can plot the result with <span class="pack">visreg</span> as follows. If you haven't installed it, you'll need to do so. Otherwise just use the <span class="func">plot</span> function.
 
 ```{r visregdemo, eval=FALSE}
 library(visreg)
@@ -95,20 +95,21 @@ What trends do you see? Is the yearly trend the same for action movies vs other 
 
 <img src="img/lakes.jpg" style="display:block; margin: 0 auto;">
 
-Keep it local with the following Great Lakes data set. The following model uses a Gaussian process smooth for year and a cyclical p-spline for the monthly effect, both by the corresponding lake. I've increased k for the year effect, and the note the start and end for the cyclic spline.  As a starting point to play with the data, rerun with `bs='ps'` (a regular p-spline) for the month effect. Do you think using the cyclic option was valid?
+Keep it local with the following Great Lakes data set[^lakedata].  The following model uses a Gaussian process smooth for year and a p-spline for the monthly effect, both by the corresponding lake. Try increasing k for the year effect, and with `bs='cp'` (a cyclic p-spline) for the month effect. Do you think using the cyclic option, where the endpoints are equal, was viable approach?
 
-```{r greatLakes, cache=T}
+```{r greatLakes, cache=T, dev='svglite'}
 load('data/greatLakes.RData')
 
-gam_monthly_cycle = gam(meters*10 ~ lake + s(year, by=lake, bs='gp', k=30) 
-                        + s(month_num, bs='cp', by=lake), data=lakes)
-summary(gam_monthly_cycle)
+gam_monthly_cycle = gam(meters*10 ~ lake + s(year, by=lake, bs='gp', k=10) 
+                        + s(month_num, bs='ps', by=lake), data=lakes)
+# summary(gam_monthly_cycle)
 monthpd = visreg(gam_monthly_cycle, xvar='month_num', by='lake', overlay=T, plot=F)$fit
 yearpd = visreg(gam_monthly_cycle, xvar='year', by='lake', overlay=T, plot=F)$fit
 
 monthpd %>% 
   ggplot() +
-  geom_line(aes(x=month_num, y=visregFit)) + 
+  geom_line(aes(x=month_num, y=visregFit)) +
+  scale_x_continuous(breaks=1:12, labels=month.abb) +
   facet_wrap(~lake, scales='free_y')
 yearpd %>% 
   ggplot() +
@@ -116,3 +117,4 @@ yearpd %>%
   facet_wrap(~lake, scales='free_y')
 ```
 
+[^lakedata]: Lake data from http://www.lre.usace.army.mil/Missions/Great-Lakes-Information/Great-Lakes-Water-Levels/Historical-Data/. Note that in the exercise we model the water level in decimeters.

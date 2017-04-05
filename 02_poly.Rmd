@@ -47,7 +47,7 @@ newdat %>%
 Part of the reason is that, outside of deterministic relationships due known physical or other causes, you are unlikely to discover a quadratic relationship between variables among found data.  Even when it appears to fit, without a lot of data it is almost certainly <span class="emph">overfit</span> due to this reason.  Fitting a polynomial is more akin to enforcing our vision of how the data should be, rather than letting the data speak for itself. Sure, it might be a good approximation some of the time, just as assuming a linear relationship is, but often it's just wishful thinking.
 
 
-Compare the previous result to the following fit from a generalized additive model.  GAMs are susceptible to extrapolation as is every statistical model ever created.  However, the original fit (in red) is much better. Notice how it was better able to follow the straightened out data points at the high end, rather than continuing the bend the quadratic enforced.
+Compare the previous result to the following fit from a generalized additive model.  GAMs are susceptible to extrapolation, as is every statistical model ever created.  However, the original fit (in red) is much better. Notice how it was better able to follow the straightened out data points at the high end, rather than continuing the bend the quadratic enforced.
 
 ```{r polyplusgam, echo=FALSE}
 newdat %>% 
@@ -61,7 +61,7 @@ newdat %>%
 ```
 
 
-## A more motivating example
+## A more complex relationship
 
 Perhaps you would have been satisfied with the initial quadratic fit above or perhaps a cubic fit[^cubic]. We may come across a situation where the target of interest $y$ is a function of some covariate $x$, whose effect is not straightforward at all.  In a standard regression we can generally write the model as follows:
 
@@ -76,6 +76,8 @@ In that case we could do our standard regression model.  Now consider the follow
 $$f(x) = sin(2(4x-2)) + 2e^{-(16^2)(x-.5)^2} + \epsilon$$
 $$\epsilon \sim N(0,.3^2)$$
 
+Let's generate some data and take a look at it visually.
+
 ```{r simData}
 set.seed(123)
 x = runif(500)
@@ -84,11 +86,9 @@ y = rnorm(500, mu, .3)
 d = data.frame(x,y) 
 ```
 
-Let's take a look at it visually.
+
 
 ```{r simDataPlot, echo=F}
-#ff55035 = alpha('#ff5503', .05)   # apparently will only work with I(#ff550325)
-#ff550325 = alpha('#ff5503', .25)
 plot_ly(width=700, data=d) %>% 
   add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5)) %>% 
   theme_plotly() %>% 
@@ -99,7 +99,7 @@ plot_ly(width=700, data=d) %>%
 
 ### Polynomial regression doesn't work
 
-As above we would try and use polynomial regression, e.g. fitting a quadratic or cubic function within the standard regression framework.  However, this is unrealistic at best and at worst isn't useful for complex relationships. In the following even with a polynomial of degree 15 the fit is fairly poor in many areas.
+As above, we could try and use polynomial regression here, e.g. fitting a quadratic or cubic function within the standard regression framework.  However, this is unrealistic at best and at worst isn't useful for complex relationships. In the following even with a polynomial of degree 15 the fit is fairly poor in many areas.
 
 ```{r polyreg, echo=FALSE}
 fits = sapply(seq(3,15, 3), function(p) fitted(lm(y~poly(x,p)))) %>% 
@@ -115,6 +115,6 @@ plot_ly(width=700, data=d) %>%
 ```
 
 
-It's maybe also obvious that no transformation is going to help us in this case.  In general, we'll need tools better suited to more complex relationships, or simply ones that don't require us to overfit/simplify the relationship we see, or guess about the form randomly until finding a decent fit.
+It's maybe also obvious that a target transformation is going to help us in this case.  In general, we'll need tools better suited to more complex relationships, or simply ones that don't require us to overfit/simplify the relationship we see, or guess about the form randomly until finding a decent fit.
 
 [^cubic]: The data was actually generated with a cubic polynomial.

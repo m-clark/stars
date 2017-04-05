@@ -11,7 +11,7 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 ##### Why
 
 - demo where lm fails
-    - vs traditional ways of dealing with problems that arise
+- traditional ways of dealing with problems that arise
 
 ##### Transition: standard polynomial
 
@@ -29,11 +29,11 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 
 ##### Extensions & Ties to other
 
-- smooths
+- Additional choices for smooth terms
 - Random effects
+- Spatial
 - GP
 - Boosting/RF
-- Spatial
 
 
 ##### Technicals
