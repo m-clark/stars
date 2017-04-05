@@ -110,7 +110,8 @@ monthpd %>%
   ggplot() +
   geom_line(aes(x=month_num, y=visregFit)) +
   scale_x_continuous(breaks=1:12, labels=month.abb) +
-  facet_wrap(~lake, scales='free_y')
+  facet_wrap(~lake, scales='free_y') +
+  theme(axis.text.x = element_text(angle=-45, hjust = 0))
 yearpd %>% 
   ggplot() +
   geom_line(aes(x=year, y=visregFit)) + 
