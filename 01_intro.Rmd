@@ -5,6 +5,14 @@
 
 This talk/workshop provides a brief introduction to <span class="emph">generalized additive models</span>, or GAMs, or even more generally STARs, or <span class="emph">structured additive regression</span> models.  They offer a natural extension to common generalized linear models, while having the flexibility to incorporate a wide range of modeling situations.
 
+## Audience
+
+Specifically, I have in mind applied researchers with a burgeoning interest in using models they probably weren't exposed to in their applied statistical training. More generally, anyone that finds it useful.
+
+## Prerequisites
+
+Prerequisites include a firm understanding of linear regression and exposure to generalized linear models.  Some experience with using R for statistical modeling is required to follow along with the code and do the exercises.
+
 
 ## Outline
 
@@ -44,6 +52,4 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 
 
 
-## Prerequisites
 
-Prerequisites include some experience with using R for statistical modeling, and of firm understanding of linear regression and exposure to generalized linear models.

@@ -97,7 +97,7 @@ plot_ly(width=700, data=d) %>%
 
 
 
-### Polynomial regression doesn't work
+### Polynomial regression is problematic
 
 As above, we could try and use polynomial regression here, e.g. fitting a quadratic or cubic function within the standard regression framework.  However, this is unrealistic at best and at worst isn't useful for complex relationships. In the following even with a polynomial of degree 15 the fit is fairly poor in many areas.
 

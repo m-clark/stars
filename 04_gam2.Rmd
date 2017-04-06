@@ -6,11 +6,11 @@ One of the more powerful modeling packages in R comes with its installation[^gam
 ## Getting started
 
 
-So GAMs can be seen as a special type of GLM, that extends the model to incorporate nonlinear and other relationships.  Behind the scenes, extra columns are added to our model matrix to do this, but their associated coefficients are penalized to help avoid overfitting.
+So GAMs can be seen as a special type of GLM, that extends the model to incorporate nonlinear and other relationships, but while keeping things within a familiar framework.  Behind the scenes, extra columns are added to our model matrix to do this, but their associated coefficients are penalized to help avoid overfitting.
 
 As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, <span class="pack">mgcv</span> also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here.  For those new to this, it's important to add the concept and technique to your statistical modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called 'movies'.  For information, type `r ?movies` after loading the package.  
+Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called <span class="objclass">movies</span>.  For for information, type `?movies` after loading the package.  
 
 However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (length in minutes > 60).
 
@@ -174,7 +174,7 @@ While the statistical result is helpful to some extent, the best way to interpre
 plot(gam_model)
 ```
 
-So this tells us the contribution of the year to the model fit. For an alternative, consider the <span class="pack">visreg</span> package, which will put it back on the original scale and just look slightly nicer while allowing for more control.
+So this tells us the contribution of the year to the model fit. For an alternative, consider the <span class="pack">visreg</span> package, which will put it back on the original scale, and just look slightly nicer by default while allowing for more control.
 
 ```{r visreg, dev='svglite'}
 library(visreg)
