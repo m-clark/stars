@@ -2,4 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
-*_book
+_bookdown_files/
+_publish.R
+_book
+_bookdown_files
+rsconnect
+*/cache

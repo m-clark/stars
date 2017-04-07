@@ -15,7 +15,7 @@ Let's look at some more interesting data. For the following example we'll use th
 However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (length in minutes > 60).
 
 
-```{r movies_data_setup, eval=FALSE, echo=FALSE, cache=TRUE}
+```{r movies_data_setup, eval=FALSE, echo=FALSE}
 library(ggplot2movies)
 library(lubridate)
 monthly_cpi = read_csv('data/CPIAUCSL.csv') # from https://fred.stlouisfed.org/

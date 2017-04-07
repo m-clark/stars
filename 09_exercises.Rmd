@@ -11,7 +11,7 @@ Let's start off with a single covariate.  We'll use the motorcycle data set, whi
 - accel: in g
 
 
-```{r mcycle, echo=1}
+```{r mcycle, echo=1, dev='svglite'}
 data('mcycle', package='MASS')
 qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) + 
   lazerhawk::theme_trueMinimal()
@@ -21,7 +21,7 @@ Run a gam predicting head acceleration by time with time as a smooth term.
 
 You can plot the result with <span class="pack">visreg</span> as follows. If you haven't installed it, you'll need to do so. Otherwise just use the <span class="func">plot</span> function.
 
-```{r visregdemo, eval=FALSE}
+```{r visregdemo, eval=FALSE, dev='svglite'}
 library(visreg)
 visreg(my_gam_model, partial=F)
 ```
@@ -82,7 +82,7 @@ pd %>%
 
 Plot the result with visreg as follows.
 
-```{r visAction, eval=FALSE}
+```{r visAction, eval=FALSE, dev='svglite'}
 visreg::visreg(gam_model_byAction, xvar='year', by='Action', 
                overlay=T, partial=F)
 ```
@@ -97,7 +97,7 @@ What trends do you see? Is the yearly trend the same for action movies vs other 
 
 Keep it local with the following Great Lakes data set[^lakedata].  The following model uses a Gaussian process smooth for year and a p-spline for the monthly effect, both by the corresponding lake. Try increasing k for the year effect, and with `bs='cp'` (a cyclic p-spline) for the month effect. Do you think using the cyclic option, where the endpoints are equal, was viable approach?
 
-```{r greatLakes, cache=T, dev='svglite'}
+```{r greatLakes, dev='svglite'}
 load('data/greatLakes.RData')
 
 gam_monthly_cycle = gam(meters*10 ~ lake + s(year, by=lake, bs='gp', k=10) 
