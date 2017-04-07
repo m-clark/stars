@@ -22,21 +22,21 @@ fits = d %>%
 
 
 plot_ly(fits, width='100%') %>% 
-  add_markers(~x, ~y, marker=list(color='black', opacity=.1), showlegend=F) %>% 
-  add_lines(~x, ~fit, color=I('#8B000080'), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+  add_lines(~x, ~fit, color=I('#03b3ff'), showlegend=F) %>% 
   theme_plotly()
 ```
 
-While this is better, again it is unsatisfactory. The separate fits are unconnected, leading to sometimes notably different predictions for values close together.  Being fit to small amounts of data means each fit overfits that area of data, leading to a fairly 'wiggly' result most of the time.
+While this is notably better fit than e.g., a cubic polynomial, again it is unsatisfactory. The separate fits are unconnected, leading to sometimes notably different predictions for values close together.  Being fit to small amounts of data means each fit overfits that area of data, leading to a fairly 'wiggly' result most of the time.
 
 ## Introducing GAMs
 
-`r tufte::newthought('In essence, a GAM is GLM.')` What distinguishes it from the ones you know is that, unlike a GLM, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
+`r tufte::newthought('In essence, a GAM is a GLM.')` What distinguishes it from the ones you know is that, unlike a standard GLM, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
 
 $$y = x + \epsilon$$
-In the above, $y$ is our target, $x$ the covariate, and $\epsilon$ the error.
+In the above, $y$ is our target, $x$ the predictor variable, and $\epsilon$ the error.
 
-Now the GAM:
+For the GAM, we can specify it as follows:
 
 $$y = f(x) + \epsilon$$
 
@@ -60,14 +60,14 @@ If you prefer least squares as the loss function, we can put it as:
 
 $$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\mathcal{penalty}}$$
 
-The penalty regards the size of the coefficients for the smooth terms in our model.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  For a little more detail visit the [technical section][Penalized regression].
+The penalty regards the complexity of the model, and specifically the size of the coefficients for the smooth terms.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  For a little more detail visit the [technical section][Penalized regression].
 
 In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM (e.g. lasso or ridge regression), and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.
 
 
 ## Polynomial spline
 
-Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The brave may refer to the [technical details][Technical details] section.  Conceptually it is useful to continue to think of the piecewise approach we talked about before, however, we'll end up with a smoother and connected result when all is said and done.
+Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The brave may refer to the [technical details][Technical details] section.  Conceptually it is useful to continue to think of the piece-wise approach we talked about before, however, we'll end up with a smoother and connected result when all is said and done.
 
 ```{r polysplinedemo, echo=FALSE}
 d %>% 

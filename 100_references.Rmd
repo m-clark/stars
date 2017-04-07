@@ -1,0 +1,7 @@
+# References
+
+[My doc on GAMs.](https://m-clark.github.io/docs/GAM.html)
+
+Wood, S. N. 2006. Generalized Additive Models: An Introduction with R.
+
+Fahrmeir, Ludwig, Thomas Kneib, Stefan Lang, and Brian Marx. 2013. Regression: Models, Methods and Applications. (electronic access through UM library)

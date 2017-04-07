@@ -7,11 +7,11 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 
 ## Audience
 
-Specifically, I have in mind applied researchers with a burgeoning interest in using models they probably weren't exposed to in their applied statistical training. More generally, anyone that finds it useful.
+Specifically, I have in mind applied researchers with a burgeoning interest in using models they probably weren't exposed to in their applied statistical training. More generally, anyone that finds it useful.  
 
 ## Prerequisites
 
-Prerequisites include a firm understanding of linear regression and exposure to generalized linear models.  Some experience with using R for statistical modeling is required to follow along with the code and do the exercises.
+Prerequisites include a firm understanding of linear regression and exposure to generalized linear models.  Some experience with using R for statistical modeling is required to follow along with the code and do the exercises. The workshop will potentially see a wide range of skill sets and modeling experience among attendees, but aims to be accessible to all.  As such, the practical is favored over the technical, but some details are provided as an appendix, with additional references for those interested in going deeper down the rabbit hole.
 
 
 ## Outline
@@ -31,7 +31,7 @@ Prerequisites include a firm understanding of linear regression and exposure to 
 - basic info
 - getting started
 
-##### Issues
+##### Note Issues
 
 - things to get used to
 

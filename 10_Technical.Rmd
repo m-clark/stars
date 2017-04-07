@@ -1,8 +1,10 @@
 # Technical details
 
+Workshops see all types of folks at different levels. This is for some of the more technically inclined, though you'll find more context and detail in [my doc](https://m-clark.github.io/docs/GAM.html), at least which some of the following is lifted straight from.
+
 ## A detailed example
 
-The following will demonstrate a polynomial spline by hand. It is based on Fahrmeier et al. (2013).
+The following will demonstrate a polynomial spline by hand. It is based on a depiction in Fahrmeier et al. (2013).
 
 The approach is defined as follows, with $\kappa$ knots on the interval $[a,b]$ as $a=\kappa_1 < ... < \kappa_m =b$:
 
@@ -155,7 +157,7 @@ d %>%
   layout()
 ```
 
-Let's compare it to the <span class='func'>gam</span> function from the <span class='pack'>mgcv</span> package. As we'll see later we won't usually specify the knots directly, and even as we have set things up similar very close to our own approach, the gam function is still doing some things our by-hand approach is not (penalized regression).  We still get pretty close agreement.
+Let's compare it to the <span class='func'>gam</span> function from the <span class='pack'>mgcv</span> package. As we'll see later we won't usually specify the knots directly, and even as we have set things up similar very close to our own approach, the <span class="func">gam</span> function is still doing some things our by-hand approach is not (penalized regression).  We still get pretty close agreement.
 
 ```{r csFitPlotvsGAM, echo=FALSE}
 library(mgcv)
@@ -178,7 +180,7 @@ data.frame(x, y, fits=fitted(lmModCubicSpline), fitsGam=fitted(gam(y~s(x, bs='cr
 ```
 
 
-We can see that we're on the right track by using the contructor function within mgcv and a custom function for truncated power series like what we're using above. See the example in the help file for <span class='func'>smooth.construct</span> for the underlying truncated power series function.  I only show a few of the columns, but our by-hand construction and that used by gam are identical to several decimal places. 
+We can see that we're on the right track by using the constructor function within mgcv and a custom function for truncated power series like what we're using above. See the example in the help file for <span class='func'>smooth.construct</span> for the underlying truncated power series function.  I only show a few of the columns, but our by-hand construction and that used by gam are identical to several decimal places. 
 
 ```{r gamDatavsByhandData, echo=-1}
 smooth.construct.tr.smooth.spec<-function(object,data,knots)
@@ -347,15 +349,15 @@ If you prefer least squares as the loss function, we can put it as:
 
 $$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\frac{1}{2}\lambda\sum\beta^2}$$
 
-So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$).  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
+So if we're maximizing the likelihood, the penalty will make it lower than it otherwise would have been, and vice versa in terms of a loss function.  What it means for a GAM is that we'll add a penalty for the coefficients associated with the (non-linear) basis functions (e.g. $l_{2+}$).  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly.  As $\lambda \rightarrow \infty$, the result is a linear fit because any wiggliness will add too much to the loss function. As $\lambda \rightarrow 0$, we have the opposite effect, where any wiggliness is incorporated into the model.
 
 ### Effective degrees of freedom
 
 We'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
 
-At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll need to go back to using a glm. 
+At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc. p-values are not straightforward. The gist is, they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll need to go back to using a GLM. 
 
-The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere betweeen 1 and k-1 (or k), where k is chosen based on the basis. You can think of it as akin to the number of knots.  There is functionality to choose the k value, but note:
+The edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere between 1 and k-1 (or k), where k is chosen based on the basis. You can think of it as akin to the number of knots.  There is functionality to choose the k value, but note:
 
 
 > So, exact choice of k is not generally critical: it should be chosen to be large enough that you are reasonably sure of having enough degrees of freedom to represent the underlying 'truth' reasonably well, but small enough to maintain reasonable computational efficiency. Clearly 'large' and 'small' are dependent on the particular problem being addressed.
@@ -376,4 +378,44 @@ GCV = 0.44245  Scale est. = 0.43351   n = 265")
 For the standard Gaussian setting, we can use our R^2^.  Also provided is '[deviance explained](https://en.wikipedia.org/wiki/Deviance_%28statistics%29)', which in this setting is identical to the unadjusted R^2^, but for non-Gaussian families would be preferred. 
 
 The GCV, or generalized cross validation score, can be taken as an estimate of the mean square prediction error based on a leave-one-out cross validation estimation process. Steps can be taken to choose model parameters specifically based on this (it's actually the default, as opposed to, e.g. maximum likelihood).
+
+
+### Visual depiction
+
+The following reproduces the plots produced by <span class="pack">mgcv</span> and <span class="pack">visreg</span>.  I'll even use base R plotting to keep it real.
+
+First we'll start with the basic GAM plot. First we get the term for year, i.e. the linear combination of the basis functions for year.  The <span class="pack">mgcv</span> package provides this for you via the predict function.  Next we need the partial residuals, which are just the basic residuals plus the term of interest added. With the original predictor variable, we're ready to proceed.
+
+
+```{r termplot_gam, fig.show='hold', dev='svglite'}
+year_term = predict(gam_model, type='terms')[,'s(year)']
+res_partial = residuals(gam_model) + year_term
+year = 1948:2005 
+par(mfrow=c(1,2))
+plot(year, res_partial, ylim=c(-.8,.8), col='black', 
+     ylab='s(year, 7.06)', pch=19, main='ours')
+lines(year, year_term)
+plot(gam_model, se=F, residuals=T, pch=19, rug=F, ylim=c(-.8,.8), main='mgcv')
+```
+
+Now for <span class="pack">visreg</span>. It uses the predict function also, but gets a standard prediction while holding the other variables at key values (which you can manipulate). By default these key values are at the median for numeric variables, and most common category for categorical variables.
+
+```{r termplot_visreg, fig.show='hold', dev='svglite'}
+pred_data = movies_yearly %>% 
+  select(budget_2016, votes, length) %>% 
+  na.omit() %>% 
+  summarise_all(median) %>% 
+  data.frame(year=1948:2005)
+preds = predict(gam_model, newdata=pred_data)
+res_partial = gam_model$residuals + preds
+
+plot(year, preds, col='dodgerblue', ylab='f(year)', lwd=3, 
+     ylim=c(5,7), type='l', main='ours')
+points(year, res_partial, col='gray50', pch=19)
+visreg(gam_model, xvar='year', points.par=list(cex=1), band=F, 
+       ylim=c(5,7), main='visreg')
+graphics::layout(1)
+```
+
+
 
