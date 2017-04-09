@@ -1,9 +1,8 @@
 
 # Preface
 
-~ Nature abhors the linear.
 
-This talk/workshop provides a brief introduction to <span class="emph">generalized additive models</span>, or GAMs, or even more generally STARs, or <span class="emph">structured additive regression</span> models.  They offer a natural extension to common generalized linear models, while having the flexibility to incorporate a wide range of modeling situations.
+This talk/workshop provides a brief introduction to <span class="emph">generalized additive models</span> (GAMs), or even more generally, or <span class="emph">structured additive regression</span> models (STARs).  They offer a natural extension to common generalized linear models, while having the flexibility to incorporate a wide range of modeling situations.
 
 ## Audience
 
@@ -23,8 +22,8 @@ Prerequisites include a firm understanding of linear regression and exposure to 
 
 ##### Transition: standard polynomial
 
-- where works
-- where isn't applicable/fails
+- where it works
+- where it isn't applicable/fails
 
 ##### Introducing GAMs
 
@@ -50,6 +49,27 @@ Prerequisites include a firm understanding of linear regression and exposure to 
 - penalized regression
 
 
+## Workshop Setup
 
+The goal of the following is to create an RStudio project (i.e. a folder that represents the working directory moving forward) with a folder inside called 'data' that has the data for the demonstrations and exercises.  For those not used to RStudio projects, read on, and use them for everything you do from now on.
+
+### RStudio
+
+Click **File/New Project/New Directory** and give it a name, e.g. GAM_Workshop.  BE MINDFUL ABOUT **WHERE** YOU ARE CREATING IT. You don't have to do anything else with RStudio at this point, but leave it open.
+
+### Data
+
+The data used in the document demonstrations and exercises is available at https://m-clark.github.io/workshops/stars/data.7z. It is a zipped archive containing several data files and .RData objects. You must: 
+
+1. *Download it*. BE INTENTIONAL ABOUT **WHERE** YOU DOWNLOAD IT.
+2. *Unzip it*.  Note that this is a different step than number 1, and failure to do this will render the stuff inside inaccessible. BE PURPOSEFUL ABOUT **WHERE** YOU UNZIP IT.
+3. *Copy/Move it*. This now usable folder needs to go into your project folder that you just created. This can actually be done as part of step 2.
+
+When you are finished, you will now have an R project folder with a data folder inside it which contains the example data sets.  To demonstrate this, in RStudio you should be able to open a script and run `load('data/movies_yearly.RData')`.
+
+
+## Other
+
+If you're interested in the underlying code, visuals, markdown etc. these notes have a GitHub repository at https://github.com/m-clark/stars.
 
 

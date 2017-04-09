@@ -61,7 +61,7 @@ augment(mod) %>%
 ```
 
 
-Now let's go back and visualize the data.  The follow plots both predictors against the target variable.
+Now let's go back and visualize the data.  The following plots both predictors against the target variable.
 
 ```{r covariatePlot, echo=FALSE, dev='svg'}
 # p =
@@ -82,7 +82,7 @@ Now let's go back and visualize the data.  The follow plots both predictors agai
 
 ```
 
-Yikes. We certainly have a positive effect for x1, but it looks rather curvy.  The other predictor doesn't appear to have a relationship that could be classified as easily.
+Yikes. We certainly have a positive effect for x1, but it looks rather curvy.  The other predictor doesn't appear to have a relationship that could be classified as easily. It is sharply positive for low values of x2, but negative thereafter, though not in a straightforward fashion.
 
 ## Heteroscedasticity, non-normality etc.
 

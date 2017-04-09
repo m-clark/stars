@@ -7,8 +7,8 @@
 
 Let's start off with a single covariate.  We'll use the motorcycle data set, which is a data frame giving a series of measurements of head acceleration in a simulated motorcycle accident, used to test crash helmets.
 
-- times: in milliseconds after impact
-- accel: in g
+- **times**: in milliseconds after impact
+- **accel**: acceleration in g
 
 
 ```{r mcycle, echo=1, dev='svglite'}
@@ -52,7 +52,13 @@ Next we'll use a the yearly movie data consisting of the following variables.
 
 ### 2a
 
-Run an <span class="func">lm/glm</span> with `budget_2016` as the target and your choice of covariates.
+Run an <span class="func">lm/glm</span> with `budget_2016` as the target and your choice of covariates.  Here is some starter code.
+
+```{r getting_started, eval=FALSE}
+load('data/movies_yearly.RData')
+mod_glm = glm(budget_2016 ~ x + z, data=movies_yearly)
+```
+
 
 ### 2b
 
@@ -69,7 +75,8 @@ Now run a <span class="func">gam</span> with any smooth terms you care to.  What
 
 Use the <span class="objclass">movies_yearly_action</span> data. This data is the same as the yearly data, but broken out into whether the movie was categorized as being and Action flick (possibly in combination of another genre) or Other. Run a GAM where the outcome is budget in millions of 2016 dollars.  
 
-```{r exampleAction, eval=FALSE, echo=1}
+```{r exampleAction, eval=FALSE, echo=1:2}
+# If you haven't already, load the data as in exercise 2
 gam_model_byAction = gam(budget_2016 ~  s(year, by=Action) + Action + votes + length, 
                          data=movies_yearly_action)
 pd = visreg::visreg(gam_model_byAction, xvar='year', by='Action', plot=F)$fit

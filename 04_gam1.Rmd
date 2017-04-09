@@ -9,7 +9,7 @@ plot_ly(width=700, data=d) %>%
 
 ## Piecewise polynomial
 
-So how might we solve the problem?  One way would be to divide the data into chunks at various points (<span class='emph'>knots</span>), and fit a polynomial within that subset of data.
+So how might we solve the problem?  One way would be to divide the data into chunks at various points (<span class='emph'>knots</span>), and fit a linear regression or polynomial model within that subset of data.  The following fits a cubic polynomial for each subset of x.
 
 ```{r piecewisePoly, echo=FALSE}
 knots = seq(0,1, by=.1)
@@ -22,7 +22,7 @@ fits = d %>%
 
 
 plot_ly(fits, width='100%') %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5), showlegend=F) %>% 
   add_lines(~x, ~fit, color=I('#03b3ff'), showlegend=F) %>% 
   theme_plotly()
 ```
@@ -31,7 +31,7 @@ While this is notably better fit than e.g., a cubic polynomial, again it is unsa
 
 ## Introducing GAMs
 
-`r tufte::newthought('In essence, a GAM is a GLM.')` What distinguishes it from the ones you know is that, unlike a standard GLM, it is composed of a sum of smooth functions of covariates instead of the standard covariates.  Consider the standard (g)lm[^subscripts]:
+`r tufte::newthought('In essence, a GAM is a GLM.')` What distinguishes it from the ones you know is that, unlike a standard GLM, it is composed of a sum of smooth functions of covariates instead of or in addition to the standard covariates.  Consider the standard (g)lm[^subscripts]:
 
 $$y = x + \epsilon$$
 In the above, $y$ is our target, $x$ the predictor variable, and $\epsilon$ the error.
@@ -46,13 +46,13 @@ $$y = f(x) + \epsilon = \sum_{j=1}^{d}B_j(x)\gamma_j + \epsilon$$
 
 Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $x$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  This might sound complicated, *until you realise you've done this before*.  Let's go back to the quadratic polynomial, which uses the polynomial basis.
 
-$$f(x) = \gamma_0 + \gamma_1\cdot x \ldots +\gamma_d\cdot x^d$$
+$$f(x) = \gamma_0 + \gamma_1\cdot x^1 \ldots +\gamma_d\cdot x^d$$
 
 In that case $d=2$ and we have our standard regression with a quadratic term, but in fact, we can use this approach to produce the bases for any polynomial.  
 
-As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a GLM!  However, the additional point is that it uses <span class="emph">penalized estimation</span>, something that is quite common in some modeling contexts, and not common enough in applied research.
+As far as mechanics go, these basis functions become extra columns in the data, just like your $x^2$ etc. from the polynomial approach, and then you just run a GLM!  However, an additional aspect is that we will use <span class="emph">penalized estimation</span>, something that is quite common in some modeling contexts, and not common enough in applied research.
 
-Again consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
+For those new to penalized regression, again consider a standard GLM that we usually estimate with maximum likelihood, $l(\beta)$, where $\beta$ are the associated regression coefficients. *Conceptually* we can write the <span class="emph">penalized likelihood</span> as follows:
 
 
 $$l_p(\beta)= l(\beta) - \color{darkred}{\mathcal{penalty}}$$
@@ -67,7 +67,7 @@ In summary, you're doing a GLM, but a slightly modified one.  You could have alw
 
 ## Polynomial spline
 
-Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The brave may refer to the [technical details][Technical details] section.  Conceptually it is useful to continue to think of the piece-wise approach we talked about before, however, we'll end up with a smoother and connected result when all is said and done.
+Let's get things started by demonstrating the results from a GAM that uses a <span class="emph">polynomial spline</span> for the basis.  The brave may refer to the [technical details][Technical details] section for additional detail.  Conceptually, it is useful to continue to think of the piece-wise approach we talked about before.  However, we'll end up with a smoother and connected result when all is said and done.
 
 ```{r polysplinedemo, echo=FALSE}
 d %>% 

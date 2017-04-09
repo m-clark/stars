@@ -1,9 +1,10 @@
 ---
-title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span>"
+title: "<span style='font-size:150%'>My God! It's full of STARs!</span> <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span"
 author:  |
-  <div class="title"><span style="font-size:125%; font-variant:small-caps; ">Michael Clark</span><br>
+  <div class="title"><span style="font-size:125%; font-variant:small-caps;">Michael Clark</span><br>
   <img src="img/signature-acronym.png" style="width:33%; padding:10px 0;"> <br>
-  <img src="img/ARC-acronym-signature.png" style="width:22%; padding:10px 0;"> </div>
+  <img src="img/ARC-acronym-signature.png" style="width:22%; padding:10px 0;"> <br>
+  https://m-clark.github.io/workshops/stars/</div>
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: 
@@ -36,7 +37,7 @@ include: '_book/_main_files/'
 
 
 ```{r setup, include=FALSE, eval=TRUE}
-knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eval=T, cache.rebuild=F, cache=F,
+knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eval=T, cache.rebuild=F, cache=T,
                       R.options=list(width=120), fig.width=8, fig.align = 'center')
 ```
 

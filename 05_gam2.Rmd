@@ -1,6 +1,6 @@
 # Practical GAM
 
-One of the more powerful modeling packages in R comes with its installation[^gampack].  The mixed gam computational vehicle, or <span class="pack">mgcv</span> package, is an extremely flexible modeling tool, and one we'll use for our foray into generalized additive models.  If you're familiar with standard regression models, the syntax is little different, but adds a great many possibilities to your efforts.
+One of the more powerful modeling packages in R comes with its installation[^gampack].  The mixed gam computational vehicle, or <span class="pack">mgcv</span> package, is an extremely flexible modeling tool, and one we'll use for our foray into generalized additive models.  If you're familiar with standard regression models, the syntax is hardly different, but adds a great many possibilities to your modeling efforts.
 
 
 ## Getting started
@@ -10,7 +10,7 @@ So GAMs can be seen as a special type of GLM, that extends the model to incorpor
 
 As we will see, the main syntactical difference between using <span class="func">gam</span> and using <span class="func">glm</span> is that you'll use the <span class="func">s</span> function to incorporate <span class="emph">smooth terms</span>, or classes that include basis functions as we saw before, along with a penalty.  Beyond what we did previously, <span class="pack">mgcv</span> also incorporates a penalized regression approach.  For those familiar with lasso, ridge or other penalized approaches you'll find the same idea here.  For those new to this, it's important to add the concept and technique to your statistical modeling toolbox.
 
-Let's look at some more interesting data. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called <span class="objclass">movies</span>.  For for information, type `?movies` after loading the package.  
+Let's look at some more interesting data than the simulated stuff from before. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called <span class="objclass">movies</span>.  For for information, type `?movies` after loading the package.  
 
 However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (length in minutes > 60).
 
@@ -89,7 +89,7 @@ save(lakes, lakes_yearly, file='data/greatLakes.RData')
 ```
 
 
-```{r readimdb, echo=1:2}
+```{r readimdb, echo=2}
 library(ggplot2movies)
 load(file='data/movies_yearly.RData')
 DT::datatable(movies_yearly, options=list(dom='pt', scrollX=T, scrollY=T), width='100%')
@@ -128,7 +128,7 @@ movies_yearly %>%
 
 ## Fitting the model
 
-Let's fit a GAM to the yearly trend for ratings.  I will also put in budget (in millions), movie length (in hours), and number of votes (in thousands) as standard effects.  We'll use a cubic regression spline for our basis, `bs='cr'`, but aside from specifying the smooth term, the syntax is the same as one would use for the <span class="func">glm</span> function.
+Let's fit a GAM to the yearly trend for ratings.  I will also put in budget (in millions), movie length (in hours), and number of votes (in thousands) as standard linear effects.  We'll use a cubic regression spline for our basis, `bs='cr'`, but aside from specifying the smooth term, the syntax is the same as one would use with the <span class="func">glm</span> function.
 <br>
 
 ```{r gam_rating}
@@ -138,15 +138,11 @@ gam_model = gam(rating ~ s(year, bs='cr') + budget_2016 + votes + length,
 summary(gam_model)
 ```
 
+
 The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. For example, in this case there is no relationship between budget and rating, whereas adding an hour to the film might bump up the rating around near a point[^longmovie].
 
 ```{r parametric, echo=FALSE}
-cat("Parametric coefficients:
-             Estimate Std. Error t value Pr(>|t|)    
-(Intercept) 4.413e+00  9.674e-01   4.562 3.65e-05 ***
-budget_2016 5.762e-05  3.613e-03   0.016    0.987    
-votes       3.921e-02  1.210e-01   0.324    0.747    
-length      8.192e-01  6.071e-01   1.349    0.184")
+pander(round(summary(gam_model)$p.table, 3) %>% format, justify='lcccc', style='simple')
 ```
 
 
@@ -154,14 +150,12 @@ The next part contains our information regarding the smooth terms, of which ther
 
 
 ```{r nonparametric, echo=FALSE}
-cat("Approximate significance of smooth terms:
-          edf Ref.df     F p-value    
-s(year) 7.064  8.063 28.01  <2e-16 ***")
+pander(round(summary(gam_model)$s.table, 3) %>% format, justify='lcccc', style='simple')
 ```
 
-While this suggests a statistically significant effect, it's important to note there is not a precisely defined p-value in this setting- it clearly states 'approximate significance'.  For some more details see the [technical section][interpreting output for smooth terms] or [my document](https://m-clark.github.io/docs/GAM.html), but for now, we'll  start with the <span class="emph">effective degrees of freedom</span>, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df). 
+While this suggests a statistically significant effect, it's important to note there is not a precisely defined p-value in this setting- it clearly states 'approximate significance'.  For some more details see the [technical section][interpreting output for smooth terms] or [my document](https://m-clark.github.io/docs/GAM.html), but we'll briefly talk about the <span class="emph">effective degrees of freedom</span>, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but they are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df). 
 
-The thing to note is that the edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere between 1 and k-1, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10. Basically if it's 1, just leave it as a linear component, or if it's close to k, maybe bump up the default to allow for more wiggliness.
+The thing to keep in mind is that the edf would equal 1 if the model penalized the smooth term to a simple linear relationship[^allthewaytozero], and so the effective degrees of freedom falls somewhere between 1 and k-1, where k is chosen based on the basis. You can think of it as akin to the number of knots.  The default here was 10. Basically if it's 1, just leave it as a linear component, or if it's close to k, maybe bump up the default to allow for more wiggliness.
 
 
 ### Visualizing the effects
@@ -195,7 +189,7 @@ movies_yearly %>%
   add_lines(~year, ~Predicted_Rating)
 ```
 
-In the end, controlling for budget, length, and popularity, movie quality decreased notably until the 70s, and remained at that level until the late 90s, when quality increased even more dramatically.
+See the [technical details][Visual depiction] on how to reproduce both the <span class="pack">mgcv</span> and <span class="pack">visreg</span> default plots. In the end, controlling for budget, length, and popularity, movie quality decreased notably until the 70s, and remained at that level until the late 90s, when quality increased even more dramatically.
 
 
 
@@ -204,7 +198,7 @@ In the end, controlling for budget, length, and popularity, movie quality decrea
 
 
 
-[^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM).
+[^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM), or even the <span class="pack">splines</span> package, which comes with base R but has even less.  If you're going to use additive models, I suggest starting with <span class="pack">mgcv</span> until you know it cannot do what you want, then consider the [extensions](https://www.r-pkg.org/search.html?q=mgcv) to it that are out there.
 
 
 [^longmovie]: Presumably we have to justify the time spent watching longer movies. Note also I personally consider the length effect significant, despite the p-value.
