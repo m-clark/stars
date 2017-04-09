@@ -4,4 +4,4 @@ The purpose of this workshop was to provide awareness of a powerful modeling tec
 
 <br><br>
 
-<img src="img/nineteeneightyR.png" style="display:block; margin: 0 auto; width=25%">
+<img src="img/monolith_R.png" style="display:block; margin: 0 auto; width=10%">

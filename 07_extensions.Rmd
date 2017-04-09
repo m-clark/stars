@@ -151,6 +151,6 @@ It turns out that GAMs with a thin plate, tensor product, or cubic spline smooth
 
 [^yippeekiyaymf]: This suggest that the IMDB ratings might be a bit problematic.  1979-1989 was practically the golden age for Action movies, with things like Rambo, Alien, Terminator, Mad Max, Die Hard, Indiana Jones, RoboCop, Bloodsport, the Killer, The Untouchables, Police Story, Escape from New York, Predator, Lethal Weapon etc.  Surely there couldn't have been so many bad movies as to outweigh those? Oh, wait...
 
-[^2001]: In case you aren't familiar with the phrase 'it's full of stars', it comes from the book 2001: A Space Odyssey: see [link](https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_%28novel%29#cite_ref-3). The film adaptation is considered one of the greatest films of all time, because it is.
+[^2001]: In case you aren't familiar with the phrase 'it's full of stars', it comes from the book 2001: A Space Odyssey: see [link](https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_%28novel%29#cite_ref-3). The film adaptation is considered one of the greatest films of all time, because it is. The quote is not in that movie, but in the film sequel 2010.
 
 [^gp]: They have a close tie to reproducing kernel hilbert space methods, and generalize commonly used models in spatial modeling (kriging).  In addition, a GP can be interpreted as a standard multilayer perceptron neural net with a single hidden layer consisting of an infinite number of nodes.
