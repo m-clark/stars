@@ -12,7 +12,7 @@ As we will see, the main syntactical difference between using <span class="func"
 
 Let's look at some more interesting data than the simulated stuff from before. For the following example we'll use the iris data set.  Just kidding! We'll look at some data regarding the Internet Movie Database (IMDB) from the <span class="pack">ggplot2movies</span> package. If you want to look at the original, you'll need to install the package, and the data object within is called <span class="objclass">movies</span>.  For for information, type `?movies` after loading the package.  
 
-However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (length in minutes > 60).
+However, our example will concern yearly averages based on that data set. The primary data set is `movies_yearly`, with a film budget variable that has been adjusted to 2016 dollars. In addition, I've grouped them by whether they are an action movie or not in a separate data set `movies_yearly_action`. And finally, the data has been filtered to contain only those years where there a decent number of movies to go into the calculations (10 or more for yearly, 5 or more for yearly_action), and feature films (greater than 1 but less than 5 hours).
 
 
 ```{r movies_data_setup, eval=FALSE, echo=FALSE}
@@ -33,7 +33,7 @@ movies2 = left_join(movies, yearly_cpi) %>%
          budget_2016 = if_else(title=="Voyna i mir", 10000000/adj_factor, budget_2016))  # correction see https://en.wikipedia.org/wiki/List_of_most_expensive_films#Most_expensive_films_.28adjusted_for_inflation.29
 
 movies_yearly_action = movies2 %>% 
-  filter(length>60) %>% #length>60,
+  filter(length>60, length<300, !Documentary) %>% 
   mutate(Action=factor(Action, labels=c('Other', 'Action'))) %>% 
   group_by(year, Action) %>%
   mutate(N=n()) %>% 
@@ -52,7 +52,7 @@ movies_yearly_action = movies2 %>%
 
 
 movies_yearly = movies2 %>% 
-  filter(length>=60) %>% #length>60,
+  filter(length>60, length<300, !Documentary) %>% # 300 would keep things like LOTR (251)
   group_by(year) %>% 
   mutate(N=n()) %>% 
   summarise_at(.cols = vars(budget_2016, rating, votes, length,N), 
@@ -139,7 +139,7 @@ summary(gam_model)
 ```
 
 
-The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. For example, in this case there is no relationship between budget and rating, whereas adding an hour to the film might bump up the rating around near a point[^longmovie].
+The first part of our output contains standard linear regression results. It is important to note that there is nothing going on here that you haven't seen in any other GLM. For example, in this case there is no relationship between average budget and rating, whereas there is a positive relationship with average length[^longmovie].
 
 ```{r parametric, echo=FALSE}
 pander(round(summary(gam_model)$p.table, 3) %>% format, justify='lcccc', style='simple')
@@ -201,7 +201,7 @@ See the [technical details][Visual depiction] on how to reproduce both the <span
 [^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM), or even the <span class="pack">splines</span> package, which comes with base R but has even less.  If you're going to use additive models, I suggest starting with <span class="pack">mgcv</span> until you know it cannot do what you want, then consider the [extensions](https://www.r-pkg.org/search.html?q=mgcv) to it that are out there.
 
 
-[^longmovie]: Presumably we have to justify the time spent watching longer movies. Note also I personally consider the length effect significant, despite the p-value.
+[^longmovie]: Presumably we have to justify the time spent watching longer movies. But remember these are averages, so bumping up the *average length* for a given year would undoubtedly fundamentally change the types of movies considered.
 
 [^allthewaytozero]: You can actually penalize the covariate right out of the model if desired, i.e. edf=0.
 
@@ -210,4 +210,4 @@ See the [technical details][Visual depiction] on how to reproduce both the <span
 
 
 
-[^atmeans]: If we had put votes at its mean, you would basically duplicate the previous plot.
+[^atmeans]: If we had put votes at its median, you would basically duplicate the previous plot.

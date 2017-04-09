@@ -1,6 +1,6 @@
 # Technical details
 
-Workshops see all types of folks at different levels. This is for some of the more technically inclined, though you'll find more context and detail in [my doc](https://m-clark.github.io/docs/GAM.html) and Wood (2006), from which a good chunk of this section is taken more or less directly from.
+Workshops see all types of folks at different levels. This is for some of the more technically inclined, though you'll find more context and detail in [my document](https://m-clark.github.io/docs/GAM.html) and Wood (2006), from which a good chunk of this section is taken more or less directly from.
 
 ## GAM Introduction
 
@@ -16,7 +16,7 @@ $$\mathrm{GAM:}\quad g(\mu) = X\beta + Z\gamma$$
 
 Where $Z$ represents the basis functions of some subset of $X$ covariates. Thus we can have any number of smooth terms, possibly of different bases, and even combinations of them.
 
-Finally we can depict structured additive regression, or STAR, model as a GAM + random effects ($\Upsilon$) + spatial effects ($\Xi$) + other fun stuff.
+Finally we can depict the structured additive regression, or STAR, model as a GAM + random effects ($\Upsilon$) + spatial effects ($\Xi$) + other fun stuff.
 
 $$\mathrm{STAR:}\quad g(\mu) = X\beta + Z\gamma + \Upsilon\varpi + \Xi\varrho + \ldots \mathbf{?}\vartheta $$
 
@@ -38,33 +38,29 @@ So if we're maximizing the likelihood will make it lower than it otherwise would
 
 ## A detailed example
 
-The following will demonstrate a polynomial spline by hand. The visual display is based on a depiction in Fahrmeier et al. (2013).
+The following will demonstrate a polynomial spline by hand[^trunc]. The example, and in particular the visual display, is based on a depiction in Fahrmeier et al. (2013).
 
 The approach is defined as follows, with $\kappa$ knots on the interval $[a,b]$ as $a=\kappa_1 < ... < \kappa_m =b$:
 
-$$y_i = \gamma_1 + \gamma_2X_i + ... + \gamma_{l+1}(X_i)_+^l + \gamma_{l+2}(X_i - \kappa_2)_+^l ... + \gamma_{l+m-1}(X_i - \kappa_{m-1})_+^l + e_i$$
+$$y_i = \gamma_1 + \gamma_2x_i + ... + \gamma_{l+1}(x_i)_+^l + \gamma_{l+2}(x_i - \kappa_2)_+^l ... + \gamma_{l+m-1}(x_i - \kappa_{m-1})_+^l + e_i$$
 
 
-$$(X_i - \kappa_j)^l_+= \begin{cases} 
-(X_i-\kappa_j)^l & X_i \geq k_j \\ 
+$$(x - \kappa_j)^l_+= \begin{cases} 
+(x-\kappa_j)^l & x \geq \kappa_j \\ 
 0 & \textrm{otherwise}
 \end{cases}$$
 
-It might look complicated, but note that there is nothing particularly special about the model itself. It is just a standard linear regression model when everything is said and done.
+So we subtract the current knot being considered from $x$ for values of $x$ greater than or equal to the knot, otherwise, it's 0. It might look complicated, but note that there is nothing particularly special about the model itself. It is just a standard linear regression model when everything is said and done.
 
-More generally and cleanly:
+More generally we can write a GAM as follows:
 
 $$y = f(x) + e = \sum_{j=1}^{d}B_j(x)\gamma_j + e$$
 
-Above, each $B_j$ is a <span class="emph">[basis function](https://en.wikipedia.org/wiki/Basis_function)</span> that is the transformed $x$ depending on the type of basis considered, and the $\gamma$ are the corresponding regression coefficients.  It looks complicated, but you've done this before.  Let's go back to the quadratic polynomial, there the basis function includes an intercept, x and x^2^.
-
-$$f(x) = \gamma_0 + \gamma_1x + \gamma_1x^l$$
-
-In that case $l=2$ and we have our standard polynomial regression.  In fact, we can use this approach to produce the bases for any polynomial.  The basic idea is shown more explicitly in the following:
+With the spline above this becomes:
 
 $$B_1(x)=1, B_2(x)=x, ..., B_{l+1}(x)=x^l, B_{l+2}(x)=(x-\kappa_2)_+^l...B_{d}(x)=(x-\kappa_{m-1})_+^l$$
 
-But before getting too far let's see it in action. Here our polynomial *spline* will be done with degree $l$ equal to 1, which means that we are just fitting a linear regression between knots.
+Let's see it in action. Here our polynomial spline will be done with degree $l$ equal to 1, which means that we are just fitting a linear regression between knots. This uses the data we employed for demonstration [before][A more complex relationship].
 
 ```{r csbs}
 knots = seq(0, 1, by=.1)
@@ -73,6 +69,10 @@ l = 1
 bs = sapply(1:length(knots), function(k) ifelse(x >= knots[k], (x-knots[k])^l, 0))
 
 head(bs)
+
+# a more digestible example to make things even more clear
+# x2 = seq(0,1, length.out=30)
+# sapply(1:3, function(k) ifelse(x2 >= knots[k], (x2-knots[k])^l, 0))
 ```
 
 If we plot this against our target variable $y$, it doesn't look like much.
@@ -91,8 +91,8 @@ plot_ly(d, width='100%') %>%
 
 If we multiply each basis by it's corresponding regression coefficient we can start to interpret the result. 
 
-```{r csbsScaledPlotData, echo=c(2:4,6:7)}
-lmMod = lm(y~.-1, bs)
+```{r csbsScaledPlotData, echo=c(1:4,6)}
+lmMod = lm(y~.-1, bs)  # just a regression!
 bscoefs = coef(lmMod)
 bsScaled = sweep(bs, 2, bscoefs,`*`)
 colnames(bsScaled) = c('int', paste0('X', 1:10))
@@ -158,7 +158,7 @@ filter(plotData, xcut!='Int') %>%
 ```
 
 
-One of the more common approaches with GAMs uses a cubic spline fit. So we'll change our polynomial degree from 1 to 3.
+One of the more common approaches with GAMs uses a cubic spline fit. So we'll change our polynomial degree from 1 to 3 (i.e. `l = 3`).
 
 ```{r csFitPlotDegree3, echo=FALSE}
 l = 3
@@ -315,7 +315,7 @@ However, as we'll come to learn in the next section, we don't really have to wor
 
 ### Effective degrees of freedom
 
-In interpreting the output from <span class="pack">mgcv</span>, we'll start with the effective degrees of freedom, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but their corresponding parameters are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see my document, `?summary.gam` and `?anova.gam`. 
+In interpreting the output from <span class="pack">mgcv</span>, we'll start with the <span class="emph">effective degrees of freedom</span>, or edf. In typical OLS regression the model degrees of freedom is equivalent to the number of predictors/terms in the model. This is not so straightforward with a GAM due to the smoothing process and the penalized regression estimation procedure. In this example there are actually 9 terms associated with this smooth, but their corresponding parameters are each penalized to some extent and thus the *effective* degrees of freedom does not equal 9. For hypothesis testing an alternate edf is actually used, which is the other one provided there in the summary result (Ref.df).  For more on this see [my document](https://m-clark.github.io/docs/GAM.html), `?summary.gam` and `?anova.gam`. 
 
 At this point you might be thinking these p-values are a bit fuzzy, and you'd be right.   As is the case with mixed models, machine learning approaches, etc., p-values are not straightforward. The gist is that in the GAM setting they aren't to be used for harsh cutoffs, say, at an arbitrary .05 level, but then standard p-values shouldn't be used that way either.  If they are pretty low you can feel comfortable claiming statistical significance, but if you want a tight p-value you'll need to go back to using a GLM. 
 
@@ -333,8 +333,8 @@ If you want a more statistically oriented approach, see `?gam.check`.
 ### Deviance explained
 
 ```{r rsq, echo=FALSE}
-cat("R-sq.(adj) =   0.51   Deviance explained = 51.8%
-GCV = 0.44245  Scale est. = 0.43351   n = 265")
+cat("R-sq.(adj) =  0.904   Deviance explained = 92.1%
+GCV = 0.010074  Scale est. = 0.0081687  n = 58")
 ```
 
 For the standard Gaussian setting, we can use our R^2^.  Also provided is '[deviance explained](https://en.wikipedia.org/wiki/Deviance_%28statistics%29)', which in this setting is identical to the unadjusted R^2^, but for non-Gaussian families would be preferred. 
@@ -384,3 +384,5 @@ graphics::layout(1)
 [^secondderiv]: More formally, the penalty focuses on the second derivative of the function (i.e. it's curvature): $\lambda \int f''(x)^2dx$
 
 [^Smat]: For example, it would be an identity matrix if we were dealing with random effects, or a neighborhood matrix when dealing with a spatial context.
+
+[^trunc]: This is the truncated power series variant of polynomial splines.

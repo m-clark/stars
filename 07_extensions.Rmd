@@ -8,10 +8,11 @@ There are many options available in <span class="pack">mgcv</span> beyond cubic 
 
 ### Interactions
 
-Not only can we have multiple smooth terms in a model, we can implement interactions of smooth terms. The following shows a model in which we could combine the effects of year and length of the movie via the <span class="func">te</span> function, along with the corresponding predictive plots.  Note that the 3d is interactive, so twist it however you like to see what's going on.
+Not only can we have multiple smooth terms in a model, we can implement interactions of smooth terms. The following shows a model in which we could combine the effects of year and length of the movie via the <span class="func">te</span> function, along with the corresponding predictive plots.  I use the raw movies data set, with some filters to keep the observations retained more comparable.  Note that the 3d is interactive, so twist it however you like to see what's going on.
 
-```{r gam2d, fig.show='hide', echo=1}
-gam_model_2d = gam(rating ~  te(year, length), data=movies_yearly)
+```{r gam2d, fig.show='hide', echo=2}
+movies_filtered = filter(movies, length>60, length<180, year>1919, !Documentary)
+gam_model_2d = gam(rating ~  te(year, length), data=movies_filtered)
 pd = visreg::visreg2d(gam_model_2d, 'year', 'length')[1:3] # for some reason 2d doesn't have a plot= argument
 names(pd) = c('Year', 'Length_Hrs', 'Rating')
 pd$Rating = t(pd$Rating)
@@ -23,6 +24,7 @@ colfun = rev(colorRampPalette(RColorBrewer::brewer.pal(9, 'RdBu'))(100))
 with(lapply(pd, round, 2),
      plot_ly(x=~Year, y=~Length_Hrs,  z=Rating, type='heatmap', colors=colfun, width='75%'))  %>%
   layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
+
 with(lapply(pd, round, 2), plot_ly(x=Year, y=Length_Hrs,  z = Rating, type='surface', hoverinfo='none', colors=colfun, width='75%',
                                    lighting=list(roughness=.01, ambient=.9), 
                                    contours=list(x=list(highlightcolor=toRGB('gray90'), width=1),
@@ -31,14 +33,14 @@ with(lapply(pd, round, 2), plot_ly(x=Year, y=Length_Hrs,  z = Rating, type='surf
   layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 ```
 
-We now get the sense that the highest expected ratings are with shorter films in the 1960s.
+We now get the sense that the highest expected ratings might be expected with more longer, more recent films.  Relatively shorter films would be expected to have lower ratings, particularly films from the 60s and 70s.
 
 There is also a way to do this interaction in a manner similar to ANOVA decomposition with both main effects and interaction.  See the <span class="func">ti</span> function.
 
 
 ### Grouped Effects
 
-We can apply a smooth for a continuous covariate across levels of some grouping factor.  In the following, we'll let year have a different effect for Action movies vs. other movies.
+We can apply a smooth for a continuous covariate across levels of some grouping factor, which extends our interactions to categorical variables.  In the following, we'll let year have a different effect for Action movies vs. other movies.
 
 ```{r gamby, echo=1}
 gam_model_by = gam(rating ~  s(year, by=Action) + Action + budget_2016 + votes + length, 
@@ -51,7 +53,7 @@ pd %>%
   theme_plotly()
 ```
 
-In this case Action movies are generally rated worse, and suffered a second and sharper dip starting in the 80s[^yippeekiyaymf]. Also, their recent rise is not quite as sharp.  Another alternative to this type of grouped approach specifies a specific type of smooth that would be similar to random slopes in a mixed model (see `?factor.smooth.interaction`). We now turn to the mixed model approach with GAMs.
+In this case Action movies are generally rated worse, and suffered a second and sharper dip starting in the 80s[^yippeekiyaymf]. Also, their recent rise is not quite as sharp.  Another alternative to this type of grouped approach, which would be applicable if there are many categories, specifies a specific type of smooth that would be similar to random slopes in a mixed model (see `?factor.smooth.interaction`). We now turn to the mixed model approach with GAMs.
 
 
 ### Mixed Models
@@ -65,14 +67,12 @@ If you've spent much time with mixed models, that probably looks familiar to you
 
 For this example I will use the sleep study data that comes with the <span class="pack">lme4</span> package. It has reaction times for some tests where 18 subjects were restricted to 3 hours of sleep each night for 10 days. We fit a model with (uncorrelated) random intercepts and random slopes for Days.
 
-```{r gamm, echo=1:8}
+```{r gamm, echo=1:5}
 library(lme4)
 mod_lme4 = lmer(Reaction ~ Days + (1|Subject) + (0 + Days|Subject), sleepstudy)
 mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), 
                data=sleepstudy, method='REML')
 
-# summary(mod_lme4)
-# summary(mod_gamm)
 VarCorr(mod_lme4)
 gam.vcomp(mod_gamm)
 cbind(ranef(mod_lme4)$Subject,
@@ -90,16 +90,16 @@ The results are essentially identical. The <span class="pack">mgcv</span> packag
 
 ### Spatial models
 
-Consider a data set with latitude and longitude coordinates among other covariates used to model some target variable.  A spatial regression analysis might incorporate an approach to incorporate spatial covariance among the observation points (e.g. <span class="emph">kriging</span>).  Such an approach is a special case of <span class="emph">Gaussian process</span>.  Know what else happens to be a special case of a Gaussian process? That's right, a GAM!  As such we can add spatial models to the sorts of models covered by GAMs too.  The following gives a sense of the syntax.  The mgcv package even has a `'gp'` smooth, because why wouldn't it?
+Consider a data set with latitude and longitude coordinates among other covariates used to model some target variable.  A spatial regression analysis uses an approach to account for spatial covariance among the observation points (e.g. <span class="emph">kriging</span>).  Such an approach is a special case of <span class="emph">Gaussian process</span> which, as we note later, GAMs are as well.  As such we can add spatial models to the sorts of models covered by GAMs too.  The following gives a sense of the syntax.  The <span class="pack">mgcv</span> package even has a `'gp'` smooth.
 
  
 ```{r gamspatpoint, eval=F}
-gam(y ~ s(lat, lon, bs='gp'))  # Matern
+gam(y ~ s(lat, lon, bs='gp'))  # Matern by default
 ```
 
-What about the discrete case, where the spatial *random effect* is based on geographical regions?  This involves a penalty that is based on the adjacency matrix of the regions, where if there are $g$ regions, the adjacency matrix is a $g \times g$ indicator matrix where there is some non-zero value when region i is connected to region j, and 0 otherwise.  In addition an approach similar to that for a random effect is used to incorporate observations belonging to specific regions.  
+What about the discrete case, where the spatial *random effect* is based on geographical regions?  This involves a penalty that is based on the adjacency matrix of the regions, where if there are $g$ regions, the adjacency matrix is a $g \times g$ indicator matrix where there is some non-zero value when region i is connected to region j, and 0 otherwise.  In addition an approach similar to that for a random effect is used to incorporate observations belonging to specific regions.  These are sometimes referred to as geoadditive models.
 
-You'll be shocked to know that <span class="pack">mgcv</span> has a smooth option for this situation as well, `bs='mrf'`, where `mrf` stands for <span class="emph">Markov random field</span>, which is an undirected graph.  Plotting the smooth term is akin to displaying the spatial random effect.
+You'll be shocked to know that <span class="pack">mgcv</span> has a smooth construct for this situation as well, `bs='mrf'`, where `mrf` stands for <span class="emph">Markov random field</span>, which is an undirected graph.  Plotting the smooth term is akin to displaying the spatial random effect.
 
 The following shows example code. See the help for `mrf` for more detail.
 
@@ -151,6 +151,6 @@ It turns out that GAMs with a thin plate, tensor product, or cubic spline smooth
 
 [^yippeekiyaymf]: This suggest that the IMDB ratings might be a bit problematic.  1979-1989 was practically the golden age for Action movies, with things like Rambo, Alien, Terminator, Mad Max, Die Hard, Indiana Jones, RoboCop, Bloodsport, the Killer, The Untouchables, Police Story, Escape from New York, Predator, Lethal Weapon etc.  Surely there couldn't have been so many bad movies as to outweigh those? Oh, wait...
 
-[^2001]: In case you aren't familiar with the phrase, it comes from the book 2001: A Space Odyssey: see [link](https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_%28novel%29#cite_ref-3). The film adaptation is considered one of the greatest films of all time, because it is.
+[^2001]: In case you aren't familiar with the phrase 'it's full of stars', it comes from the book 2001: A Space Odyssey: see [link](https://en.wikipedia.org/wiki/2001:_A_Space_Odyssey_%28novel%29#cite_ref-3). The film adaptation is considered one of the greatest films of all time, because it is.
 
 [^gp]: They have a close tie to reproducing kernel hilbert space methods, and generalize commonly used models in spatial modeling (kriging).  In addition, a GP can be interpreted as a standard multilayer perceptron neural net with a single hidden layer consisting of an infinite number of nodes.
