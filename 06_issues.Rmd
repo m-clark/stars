@@ -36,7 +36,5 @@ movies_yearly %>%
 
 - **Fuzzy p-values**: For folks that are used to complex models, e.g. penalized regression, mixed models, machine learning techniques, this is not new.  For those new to such models, you must unlearn what you have learned.
 
-- **Bayesian approaches**:  The <span class="pack">brms</span> package can take your GAM to the Bayesian setting.
-
 
 Just like with any new statistical modeling technique, diving in with something you're already familiar with is a good way to start getting comfortable.  One way to do so would be to revisit an analysis you've done in the past and re-analyze it with a GAM.  And don't forget, you also have an [entire text](https://www.crcpress.com/Generalized-Additive-Models-An-Introduction-with-R/Wood/p/book/9781584884743) devoted to the package for as much detail as you want, and the help files are quite detailed as well.

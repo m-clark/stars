@@ -145,4 +145,4 @@ Outliers, if there was actually a standard for deeming something as such, are ju
 Data abounds where a standard linear model performs poorly or doesn't do a good enough job capturing the nuances of the data. There may be nonlinear relationships as above, dependency in the observations, known non-Gaussian data etc.  One should be prepared to use models better suited to the situation, rather than torturing the data to fit a simplified modeling scheme.
 
 
-[^basergraphics]: In case you are wondering, yes, these diagnostic plots are in fact base R graphics, and they still can look good, at least when I'm doing them.
+[^basergraphics]: In case you are wondering, yes, these diagnostic plots are in fact base R graphics, and they still can look good with some work.

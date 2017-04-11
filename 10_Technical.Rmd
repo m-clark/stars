@@ -4,7 +4,7 @@ Workshops see all types of folks at different levels. This is for some of the mo
 
 ## GAM Introduction
 
-A GAM is a GLM whose linear predictor includes a sum of smooth functions of covariates. With link function $g(.)$, model matrix $X$ of $n$ rows and $p$ covariates (plus a column for the intercept), a vector of $p$ coefficients $\beta$, and observations $i$, we can write a GLM as follows:
+A GAM is a GLM whose linear predictor includes a sum of smooth functions of covariates. With link function $g(.)$, model matrix $X$ of $n$ rows and $p$ covariates (plus a column for the intercept), a vector of $p$ coefficients $\beta$, we can write a GLM as follows:
 
 $$\mathrm{GLM:}\quad g(\mu) = X\beta$$
 For the GAM, it could look something like:
@@ -14,7 +14,7 @@ or as we did when discussing mixed models:
 
 $$\mathrm{GAM:}\quad g(\mu) = X\beta + Z\gamma$$
 
-Where $Z$ represents the basis functions of some subset of $X$ covariates. Thus we can have any number of smooth terms, possibly of different bases, and even combinations of them.
+Where $Z$ represents the basis functions of some subset of $X$ or other covariates. Thus we can have any number of smooth terms, possibly of different bases, and even combinations of them.
 
 Finally we can depict the structured additive regression, or STAR, model as a GAM + random effects ($\Upsilon$) + spatial effects ($\Xi$) + other fun stuff.
 

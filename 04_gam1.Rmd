@@ -33,14 +33,15 @@ While this is notably better fit than e.g., a cubic polynomial, again it is unsa
 
 `r tufte::newthought('In essence, a GAM is a GLM.')` What distinguishes it from the ones you know is that, unlike a standard GLM, it is composed of a sum of smooth functions of covariates instead of or in addition to the standard covariates.  Consider the standard (g)lm[^subscripts]:
 
-$$y = x + \epsilon$$
+$$y = \gamma_0 + \gamma_1\cdot x$$
+
 In the above, $y$ is our target, $x$ the predictor variable, and $\epsilon$ the error.
 
 For the GAM, we can specify it as follows:
 
 $$y = f(x) + \epsilon$$
 
-Now we are dealing with some specific function of $x$.  It involves choosing a <span class="emph">basis</span>, which in technical terms means choosing a space of functions for which $f$ is some element of it.  On the practical side, it is a means to capture nonlinear relationships. As we'll see later, an example would be choosing a cubic spline for the basis.  Choosing a basis also means we're selecting basis functions, which will actually go into the analysis.  We can add more detail as follows:
+Now we are dealing with some specific (additive) function of inputs, which will not require the (possibly transformed) $y$ to be a linear function of $x$.  It involves choosing a <span class="emph">basis</span>, which in technical terms means choosing a space of functions for which $f$ is some element of it.  On the practical side, it is a means to capture nonlinear relationships. As we'll see later, an example would be choosing a cubic spline for the basis.  Choosing a basis also means we're selecting basis functions, which will actually go into the analysis.  We can add more detail as follows:
 
 $$y = f(x) + \epsilon = \sum_{j=1}^{d}B_j(x)\gamma_j + \epsilon$$
 
@@ -56,13 +57,14 @@ For those new to penalized regression, again consider a standard GLM that we usu
 
 
 $$l_p(\beta)= l(\beta) - \color{darkred}{\mathcal{penalty}}$$
+
 If you prefer least squares as the loss function, we can put it as:
 
 $$\mathcal{Loss} = \sum (y-X\beta)^2 + \color{darkred}{\mathcal{penalty}}$$
 
-The penalty regards the complexity of the model, and specifically the size of the coefficients for the smooth terms.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  For a little more detail visit the [technical section][Penalized regression].
+The penalty regards the complexity of the model, and specifically the size of the coefficients for the smooth terms.  The practical side is that it will help to keep us from overfitting the data, where our smooth function might get too wiggly[^wiggly].  
 
-In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM (e.g. lasso or ridge regression), and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.
+In summary, you're doing a GLM, but a slightly modified one.  You could have always been using penalized GLM (e.g. lasso or ridge regression), and you'd have slightly better predictive capability if you had.  We can use different loss functions, different penalties etc. but the concepts are the main thing to note here.  For a little more detail on this section visit the [technical section][GAM Introduction].
 
 
 ## Polynomial spline

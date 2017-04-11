@@ -33,7 +33,7 @@ with(lapply(pd, round, 2), plot_ly(x=Year, y=Length_Hrs,  z = Rating, type='surf
   layout(paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')
 ```
 
-We now get the sense that the highest expected ratings might be expected with more longer, more recent films.  Relatively shorter films would be expected to have lower ratings, particularly films from the 60s and 70s.
+We now get the sense that the highest expected ratings might be expected with more longer films, perhaps even more for more recent ones.  Starting around the 60s, shorter films are associated with worse ratings.
 
 There is also a way to do this interaction in a manner similar to ANOVA decomposition with both main effects and interaction.  See the <span class="func">ti</span> function.
 
@@ -67,7 +67,7 @@ If you've spent much time with mixed models, that probably looks familiar to you
 
 For this example I will use the sleep study data that comes with the <span class="pack">lme4</span> package. It has reaction times for some tests where 18 subjects were restricted to 3 hours of sleep each night for 10 days. We fit a model with (uncorrelated) random intercepts and random slopes for Days.
 
-```{r gamm, echo=1:5}
+```{r gamm, echo=1:6}
 library(lme4)
 mod_lme4 = lmer(Reaction ~ Days + (1|Subject) + (0 + Days|Subject), sleepstudy)
 mod_gamm = gam(Reaction ~ Days + s(Subject, bs='re') + s(Days, Subject, bs='re'), 
@@ -147,6 +147,11 @@ Where the Gaussian distribution is over vectors and defined by a mean vector and
 $$f\sim \mathcal{GP}(m,k)$$
 
 It turns out that GAMs with a thin plate, tensor product, or cubic spline smooth are maximum a posteriori (MAP) estimates of Gaussian processes with specific covariance functions and a zero mean function. In that sense one might segue nicely to Gaussian processes if familiar with additive models.  The <span class="pack">mgcv</span> package, ... wait for it..., also allows one to use a spline form of Gaussian process `bs='gp'`.
+
+### Bayesian 
+
+Bayesian GAM are also possible within R through a [variety of packages](https://www.r-pkg.org/search.html?q=bayesian+additive). The <span class="pack">brms</span> package can take your GAM to the Bayesian setting using the same syntax even, and is particularly useful for adding the mixed model component as well, and alternative distributions.  It is based on the [Stan](http://mc-stan.org/) programming language.
+
 
 
 [^yippeekiyaymf]: This suggest that the IMDB ratings might be a bit problematic.  1979-1989 was practically the golden age for Action movies, with things like Rambo, Alien, Terminator, Mad Max, Die Hard, Indiana Jones, RoboCop, Bloodsport, the Killer, The Untouchables, Police Story, Escape from New York, Predator, Lethal Weapon etc.  Surely there couldn't have been so many bad movies as to outweigh those? Oh, wait...
