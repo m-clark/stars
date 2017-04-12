@@ -1,5 +1,5 @@
 ---
-title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance ___*Your*___ Results!</span>"
+title: "My god, it's full of STARs! <br> <span style='font-size:50%'>Using Astrology to Enhance ***Your*** Results!</span>"
 author:  |
   <div class="title"><span style="font-size:125%; font-variant:small-caps; ">Michael Clark</span><br>
   <img src="img/signature-acronym.png" style="width:33%; padding:10px 0;"> <br>

@@ -6,7 +6,7 @@ This talk/workshop provides a brief introduction to <span class="emph">generaliz
 
 ## Audience
 
-Specifically, I have in mind applied researchers with a burgeoning interest in using models they probably weren't exposed to in their applied statistical training. More generally, anyone that finds it useful.  
+Specifically, I have in mind applied researchers/students with a burgeoning interest in using models they probably weren't exposed to in their typical statistical training. More generally, anyone that finds it useful.  
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Prerequisites include a firm understanding of linear regression and exposure to 
 
 ## Goal
 
-To provide to those attending an overview of generalized additive models and their extensions.  In addition, I hope to provide enough familiarity with what such models offer, via conceptual examples and exercies, that those attending will feel able to consider them in future modeling endeavors.
+To provide to those attending an overview of generalized additive models and their extensions.  In addition, I hope to provide enough familiarity with what such models offer, via conceptual examples and exercises, that those attending will feel able to consider them in future modeling endeavors.
 
 
 ## Outline

@@ -72,7 +72,7 @@ Now let's go back and visualize the data.  The following plots both predictors a
   geom_point(alpha=.25, color='#ff5503') + 
   geom_smooth(aes(), color='#03b3ff', se=F) +
   facet_grid(~variable) + 
-  labs(title='Fitted vs. Observed') +
+  labs(title='Predictors vs. Y') +
   theme_ipsum_rc() +
   theme_trueMinimal() +
   theme(legend.title=element_blank(),
