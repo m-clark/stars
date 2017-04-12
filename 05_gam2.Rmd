@@ -194,10 +194,6 @@ See the [technical details][Visual depiction] on how to reproduce both the <span
 
 
 
-
-
-
-
 [^gampack]: For reasons I've not understood, other packages still depend on or extend the <span class="pack">gam</span> package, which doesn't possess anywhere near the functionality (though the authors literally wrote the book on GAM), or even the <span class="pack">splines</span> package, which comes with base R but has even less.  If you're going to use additive models, I suggest starting with <span class="pack">mgcv</span> until you know it cannot do what you want, then consider the [extensions](https://www.r-pkg.org/search.html?q=mgcv) to it that are out there.
 
 
@@ -205,9 +201,6 @@ See the [technical details][Visual depiction] on how to reproduce both the <span
 
 [^allthewaytozero]: You can actually penalize the covariate right out of the model if desired, i.e. edf=0.
 
-[^termplot]: This is the same as what the base R function <span class="func">termplot</span> would provide for a standard (g)lm. You can request the plots be applied to the non-smooth terms in the model as well. And the residuals function has an argument, `type='partial'` that can be applied to produce the partial residuals, which are the `residuals + term`. See `?termplot` for more info.
-
-
-
+[^termplot]: This is the same as what the base R function <span class="func">termplot</span> would provide for a standard (g)lm. You can request the plots be applied to the non-smooth terms in the model as well. And the residuals function has an argument, `type='partial'` that can be applied to produce the partial residuals, which are the `residuals + term`. See `?termplot` for more info, and the [technical details section][Visual depiction].  Note that in the case of a single smooth term and nothing else in the model, one could add the intercept to get back to the response scale.  However, the visreg approach would be the way to go in that case, as it extends to easy set values for other covariates as well.
 
 [^atmeans]: If we had put votes at its median, you would basically duplicate the previous plot.
