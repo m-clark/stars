@@ -1,9 +1,10 @@
 ---
-title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span>"
+title: "My god, it's full of stars! <br> <span style='font-size:50%'>Using Astrology to Enhance ___*Your*___ Results!</span>"
 author:  |
   <div class="title"><span style="font-size:125%; font-variant:small-caps; ">Michael Clark</span><br>
   <img src="img/signature-acronym.png" style="width:33%; padding:10px 0;"> <br>
-  <img src="img/ARC-acronym-signature.png" style="width:22%; padding:10px 0;"> </div>
+  <img src="img/ARC-acronym-signature.png" style="width:22%; padding:10px 0;"> <br>
+  <span style="font-size:75%;">https://m-clark.github.io/workshops/stars/</span></div>
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: 
