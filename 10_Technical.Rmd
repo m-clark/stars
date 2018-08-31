@@ -172,7 +172,7 @@ d %>%
   # data.frame(x, y, pred=fitted(lmModCubicSpline)) %>% 
   plot_ly(width='100%') %>% 
   add_markers(~x, ~y, color=I(scales::alpha('black', .1)), colors=cs, showlegend=F) %>% 
-  # add_lines(~x, ~pred, color=I('#ff5503'), colors=cs, showlegend=F) %>%
+  # add_lines(~x, ~pred, color=I('#ff5500'), colors=cs, showlegend=F) %>%
   add_lines(~x, ~pred, color=~xcut, colors=cs, showlegend=F) %>%
   theme_plotly() %>% 
   layout()
@@ -187,7 +187,7 @@ data.frame(x, y, fits=fitted(lmModCubicSpline), fitsGam=fitted(gam(y~s(x, bs='cr
   arrange(x) %>% 
   plot_ly(width='100%') %>% 
   add_markers(~x, ~y, color=I(scales::alpha('black', .25)), colors=cs, showlegend=F) %>% 
-  add_lines(~x, ~fits, color=I('#ff5503'), line=list(width=5), showlegend=T, name='demo') %>% 
+  add_lines(~x, ~fits, color=I('#ff5500'), line=list(width=5), showlegend=T, name='demo') %>% 
   add_lines(~x, ~fitsGam, color=I('#03b3ff'), colors=cs, showlegend=T, name='gam') %>% 
   theme_plotly() %>% 
   layout()

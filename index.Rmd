@@ -1,32 +1,20 @@
 ---
 title: "<span style='font-size:150%'>My God! It's full of STARs!</span> <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span>"
 author:  |
-  <div class="title"><span style="font-size:125%; font-variant:small-caps;">Michael Clark</span><br>
-  <img src="img/signature-acronym.png" style="width:33%; padding:10px 0;"> <br>
-  <img src="img/ARC-acronym-signature.png" style="width:22%; padding:10px 0;"> <br>
-  https://m-clark.github.io/workshops/stars/</div>
+  <span class="noem">Michael Clark</span>
+  https://m-clark.github.io/
+  <img src="img/signature-acronym.png" class='arc' alt="University of Michigan: CSCAR"> 
+  <img src="img/ARC-acronym-signature.png" class='cscar' alt="University of Michigan: Advanced Research Computing"> 
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
-output: 
-    bookdown::gitbook:
-      css: [standard_html.css, stars.css]
-      highlight: pygments
-      number_sections: false
-      toc_depth: 2
-      config:
-        search: yes
-        # edit: false
-        fontsettings:
-          family: san-serif
-          size: 2
+output:
+  bookdown::gitbook
 always_allow_html: yes
-font-import: http://fonts.googleapis.com/css?family=Risque|Roboto|Open+Sans
-font-family: 'Roboto'
 documentclass: book
 biblio-style: apalike
 link-citations: yes
 description: "Generalized Additive Models and Beyond"
-cover-image: img/nineteeneightyR.png
+cover-image: 'img/nineteeneightyR.png'
 url: 'https\://m-clark.github.io/workshops/stars/'  # evidently the \: is required or you'll get text in the title/toc area
 github-repo:  m-clark/stars/
 nocite: | 
@@ -42,11 +30,13 @@ knitr::opts_chunk$set(echo = T, message=F, warning=F, comment=NA, autodep=F, eva
 ```
 
 ```{r load_common_packages, echo=FALSE, cache=FALSE, eval=TRUE}
-library(plotly); library(hrbrthemes); library(lazerhawk); library(modelr)
+library(plotly); library(hrbrthemes); library(lazerhawk); library(visibly); library(modelr)
 library(mgcv); library(broom); library(pander); library(modelr); library(tidyverse)
 ```
 
-# 
-```{r fig.align='center', echo=FALSE, include=identical(knitr:::pandoc_to(), 'html')}
+####
+
+```{r intro_img, fig.align='center', out.width=0, fig.show='hide', echo=FALSE}
 knitr::include_graphics('img/nineteeneightyR.png', dpi = NA)
+knitr::include_graphics('img/mc_logo.png', dpi = NA)
 ```

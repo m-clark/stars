@@ -2,7 +2,7 @@
 
 ```{r polyreg_repeat, echo=FALSE}
 plot_ly(width=700, data=d) %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.1), showlegend=F) %>% 
   add_lines(~x, ~fits, color=~polynomial, data=fits) %>% 
   theme_plotly()
 ```
@@ -22,7 +22,7 @@ fits = d %>%
 
 
 plot_ly(fits, width='100%') %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.5), showlegend=F) %>% 
   add_lines(~x, ~fit, color=I('#03b3ff'), showlegend=F) %>% 
   theme_plotly()
 ```
@@ -73,9 +73,10 @@ Let's get things started by demonstrating the results from a GAM that uses a <sp
 
 ```{r polysplinedemo, echo=FALSE}
 d %>% 
+  arrange(x) %>% 
   add_predictions(model = gam(y ~ s(x, bs='cr', k=12), data=d)) %>% 
   plot_ly() %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.5), showlegend=F) %>% 
   add_lines(~x, ~pred, color=I('#03b3ff'), showlegend=F) %>% 
   theme_plotly()
 ```

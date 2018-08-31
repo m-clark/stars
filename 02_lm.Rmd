@@ -32,13 +32,13 @@ Everything is nice and tidy. We have straightforward information, positive effec
 ```{r lmdiag, echo=FALSE, dev='svg'}
 # total defeat of base R graphics 
 par(mfrow=c(1,2))
-plot(mod, which=1, bty='n', pch=19, col=scales::alpha('#ff5503', .1), 
+plot(mod, which=1, bty='n', pch=19, col=scales::alpha('#ff5500', .1), 
      col.smooth='#03b3ff', lwd=2, cex=1.25, col.lab='gray25', col.axis='gray50', col.sub='gray50',
      cex.caption = 1, cex.oma.main = 1.25, yaxt='n')
 axis(2, col='gray75', col.axis='gray33')
 axis(1, col='gray75', col.axis='gray33')
 title(col.caption=.2)
-plot(mod, which=2, bty='n', pch=19, col=scales::alpha('#ff5503', .1), 
+plot(mod, which=2, bty='n', pch=19, col=scales::alpha('#ff5500', .1), 
      col.smooth='#03b3ff', lwd=2, cex=1.25, col.lab='gray25', col.axis='gray75', col.sub='gray50',
      cex.caption = 1, cex.oma.main = 1.25, yaxt='n')
 axis(2, col='gray75', col.axis='gray33')
@@ -53,7 +53,7 @@ Some issues might be present, as we might be getting a little more variance with
 ```{r plotlmfit, echo=FALSE, dev='svg'}
 augment(mod) %>% 
   ggplot(aes(x=.fitted, y=y)) +
-  geom_point(alpha=.25, color='#ff5503') + 
+  geom_point(alpha=.25, color='#ff5500') + 
   geom_smooth(se=F, color='#03b3ff') +
   labs(title='Fitted vs. Observed') +
   theme_ipsum_rc() +
@@ -69,7 +69,7 @@ Now let's go back and visualize the data.  The following plots both predictors a
   select(x1, x2, y) %>% 
   gather(key=variable, value=Predictor, -y) %>% 
   ggplot(aes(x=Predictor, y=y)) +
-  geom_point(alpha=.25, color='#ff5503') + 
+  geom_point(alpha=.25, color='#ff5500') + 
   geom_smooth(aes(), color='#03b3ff', se=F) +
   facet_grid(~variable) + 
   labs(title='Predictors vs. Y') +
@@ -108,13 +108,13 @@ Well, our fit in terms of R^2^ has actually gone down. Let's check the diagnosti
 
 ```{r loglmdiag, echo=FALSE, dev='svg'}
 par(mfrow=c(1,2))
-plot(modlog, which=1, bty='n', pch=19, col=scales::alpha('#ff5503', .1), 
+plot(modlog, which=1, bty='n', pch=19, col=scales::alpha('#ff5500', .1), 
      col.smooth='#03b3ff', lwd=2, cex=1.25, col.lab='gray25', col.axis='gray50', col.sub='gray50',
      cex.caption = 1, cex.oma.main = 1.25, yaxt='n')
 axis(2, col='gray75', col.axis='gray33')
 axis(1, col='gray75', col.axis='gray33')
 title(col.caption=.2)
-plot(modlog, which=2, bty='n', pch=19, col=scales::alpha('#ff5503', .1), 
+plot(modlog, which=2, bty='n', pch=19, col=scales::alpha('#ff5500', .1), 
      col.smooth='#03b3ff', lwd=2, cex=1.25, col.lab='gray25', col.axis='gray75', col.sub='gray50',
      cex.caption = 1, cex.oma.main = 1.25, yaxt='n')
 axis(2, col='gray75', col.axis='gray33')
@@ -128,7 +128,7 @@ The transformation may have helped in some ways, but made other things worse.
 ```{r plotloglmfit, echo=FALSE, dev='svg'}
 augment(modlog) %>% 
   ggplot(aes(x=.fitted, y=log.y.)) +
-  geom_point(alpha=.25, color='#ff5503') + 
+  geom_point(alpha=.25, color='#ff5500') + 
   geom_smooth(se=F, color='#03b3ff') +
   labs(title='Fitted vs. Observed', y='log(y)') +
   theme_ipsum_rc() +

@@ -13,7 +13,7 @@ Let's start off with a single covariate.  We'll use the motorcycle data set, whi
 
 ```{r mcycle, echo=1, dev='svglite'}
 data('mcycle', package='MASS')
-qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5503')) + 
+qplot(times, accel, geom='point', data=distinct(mcycle), color=I('#ff5500')) + 
   lazerhawk::theme_trueMinimal()
 ```
 

@@ -11,7 +11,7 @@ poly_dat = data.frame(x, y)
 
 poly_dat %>% 
   plot_ly() %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.25)) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.25)) %>% 
   theme_plotly()
 ```
 
@@ -24,12 +24,12 @@ mod_poly3 = lm(y ~ poly(x, 3))
 poly_dat %>% 
   add_predictions(mod_poly) %>% 
   plot_ly() %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.25), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.25), showlegend=F) %>% 
   add_lines(~x, ~pred, line=list(color="#03b3ff", opacity=1), name='fit') %>% 
   theme_plotly()
 ```
 
-The R^2^ for this is `r broom::glance(mod_poly)$r.s %>% round(2)`, that's great! But look closely and you might notice that we aren't capturing the lower tail of this target at all, and not doing so great for observations that are high on both variables.  Here's what the data and fit would look like if we extend the data based on the underlying true function, and things only get worse.
+The R^2^ for this is `r broom::glance(mod_poly)$r.squared %>% round(2)`, that's great! But look closely and you might notice that we aren't capturing the lower tail of this target at all, and not doing so great for observations that are high on both variables.  Here's what the data and fit would look like if we extend the data based on the underlying true function, and things only get worse.
 
 ```{r poly_ack, echo=FALSE}
 x2 = c(runif(250, -5, -2), runif(250, 2, 5))
@@ -39,7 +39,7 @@ newdat = rbind(poly_dat, data.frame(x=x2, y=y2))
 newdat %>% 
   add_predictions(mod_poly) %>% 
   plot_ly() %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.25), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.25), showlegend=F) %>% 
   add_lines(~x, ~pred, name='poly', line=list(color="#03b3ff", opacity=1)) %>% 
   theme_plotly()
 ```
@@ -51,17 +51,18 @@ Compare the previous result to the following fit from a <span class="emph">gener
 
 ```{r polyplusgam, echo=FALSE}
 newdat %>% 
+  arrange(x) %>% 
   add_predictions(mod_poly) %>% 
   plot_ly() %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.1), showlegend=F) %>% 
   add_lines(~x, ~pred, name='poly', line=list(color='#03b3ff')) %>% 
-  add_lines(~x, ~pred, name='gam',  line=list(color='#a703ff'), data=add_predictions(newdat, mod_gam)) %>% 
-  add_lines(~x, ~pred, name='gam',  line=list(color='#ff1803'), data=add_predictions(poly_dat, mod_gam)) %>% 
+  add_lines(~x, ~pred, name='gam',  line=list(color='#a703ff'), data=add_predictions(newdat %>% arrange(x), mod_gam)) %>% 
+  add_lines(~x, ~pred, name='gam',  line=list(color='#ff1803'), data=add_predictions(poly_dat %>% arrange(x), mod_gam)) %>% 
   theme_plotly()
 # newdat %>% 
 #   add_predictions(mod_poly) %>% 
 #   plot_ly() %>% 
-#   add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+#   add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.1), showlegend=F) %>% 
 #   add_lines(~x, ~pred, name='poly', line=list(color='#03b3ff')) %>% 
 #   add_lines(~x, ~pred, name='gam',  line=list(color='#a703ff'), data=add_predictions(newdat, mod_gam)) %>% 
 #   add_lines(~x, ~pred, name='gam',  line=list(color='#ff1803'), data=add_predictions(poly_dat, mod_gam)) %>% 
@@ -99,7 +100,7 @@ d = data.frame(x,y)
 
 ```{r simDataPlot, echo=F}
 plot_ly(width=700, data=d) %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.5)) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.5)) %>% 
   theme_plotly() %>% 
   layout()
 ```
@@ -118,7 +119,7 @@ fits = sapply(seq(3,15, 3), function(p) fitted(lm(y~poly(x,p)))) %>%
 
 
 plot_ly(width=700, data=d) %>% 
-  add_markers(~x, ~y, marker=list(color='#ff5503', opacity=.1), showlegend=F) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.1), showlegend=F) %>% 
   add_lines(~x, ~fits, color=~polynomial, data=fits) %>% 
   theme_plotly()
 ```

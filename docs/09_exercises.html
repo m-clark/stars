@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>My God! It’s full of STARs!   Using Astrology to Enhance Your Results!</title>
+  <meta name="description" content="Generalized Additive Models and Beyond">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
+
+  <meta property="og:title" content="My God! It’s full of STARs!   Using Astrology to Enhance Your Results!" />
+  <meta property="og:type" content="book" />
+  <meta property="og:url" content="https://m-clark.github.io/workshops/stars/" />
+  <meta property="og:image" content="https://m-clark.github.io/workshops/stars/img/nineteeneightyR.png" />
+  <meta property="og:description" content="Generalized Additive Models and Beyond" />
+  <meta name="github-repo" content="m-clark/stars/" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="My God! It’s full of STARs!   Using Astrology to Enhance Your Results!" />
+  
+  <meta name="twitter:description" content="Generalized Additive Models and Beyond" />
+  <meta name="twitter:image" content="https://m-clark.github.io/workshops/stars/img/nineteeneightyR.png" />
+
+
+
+<meta name="date" content="2018-08-30">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="08_summary.html">
+<link rel="next" href="10_Technical.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+<script src="libs/htmlwidgets-1.2/htmlwidgets.js"></script>
+<script src="libs/plotly-binding-4.8.0/plotly.js"></script>
+<script src="libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="libs/plotly-htmlwidgets-css-1.39.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="libs/plotly-main-1.39.2/plotly-latest.min.js"></script>
+<link href="libs/datatables-css-0.0.0/datatables-crosstalk.css" rel="stylesheet" />
+<script src="libs/datatables-binding-0.4/datatables.js"></script>
+<link href="libs/dt-core-1.10.16/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="libs/dt-core-1.10.16/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-1.10.16/js/jquery.dataTables.min.js"></script>
+<link href="libs/dt-core-bootstrap-1.10.16/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link href="libs/dt-core-bootstrap-1.10.16/css/dataTables.bootstrap.extra.css" rel="stylesheet" />
+<script src="libs/dt-core-bootstrap-1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="libs/dt-core-bootstrap-1.10.16/js/dataTables.bootstrap.min.js"></script>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; position: absolute; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; }
+pre.numberSource a.sourceLine:empty
+  { position: absolute; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: absolute; left: -5em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="css/book.css" type="text/css" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" type="text/css" />
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class='before'><a href="./">STARS</a></li>
+
+<li class="divider"></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html"><i class="fa fa-check"></i>Preface</a><ul>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#audience"><i class="fa fa-check"></i>Audience</a></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#prerequisites"><i class="fa fa-check"></i>Prerequisites</a></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#goal"><i class="fa fa-check"></i>Goal</a></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#outline"><i class="fa fa-check"></i>Outline</a></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#workshop-setup"><i class="fa fa-check"></i>Workshop Setup</a><ul>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#rstudio"><i class="fa fa-check"></i>RStudio</a></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#data"><i class="fa fa-check"></i>Data</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="01_intro.html"><a href="01_intro.html#other"><i class="fa fa-check"></i>Other</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="02_lm.html"><a href="02_lm.html"><i class="fa fa-check"></i>Why not just use standard methods?</a><ul>
+<li class="chapter" data-level="" data-path="02_lm.html"><a href="02_lm.html#heteroscedasticity-non-normality-etc."><i class="fa fa-check"></i>Heteroscedasticity, non-normality etc.</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="03_poly.html"><a href="03_poly.html"><i class="fa fa-check"></i>Polynomial Regression</a><ul>
+<li class="chapter" data-level="" data-path="03_poly.html"><a href="03_poly.html#a-more-complex-relationship"><i class="fa fa-check"></i>A more complex relationship</a><ul>
+<li class="chapter" data-level="" data-path="03_poly.html"><a href="03_poly.html#polynomial-regression-is-problematic"><i class="fa fa-check"></i>Polynomial regression is problematic</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="04_gam1.html"><a href="04_gam1.html"><i class="fa fa-check"></i>Building up to GAMs</a><ul>
+<li class="chapter" data-level="" data-path="04_gam1.html"><a href="04_gam1.html#piecewise-polynomial"><i class="fa fa-check"></i>Piecewise polynomial</a></li>
+<li class="chapter" data-level="" data-path="04_gam1.html"><a href="04_gam1.html#introducing-gams-1"><i class="fa fa-check"></i>Introducing GAMs</a></li>
+<li class="chapter" data-level="" data-path="04_gam1.html"><a href="04_gam1.html#polynomial-spline"><i class="fa fa-check"></i>Polynomial spline</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="05_gam2.html"><a href="05_gam2.html"><i class="fa fa-check"></i>Practical GAM</a><ul>
+<li class="chapter" data-level="" data-path="05_gam2.html"><a href="05_gam2.html#getting-started"><i class="fa fa-check"></i>Getting started</a></li>
+<li class="chapter" data-level="" data-path="05_gam2.html"><a href="05_gam2.html#fitting-the-model"><i class="fa fa-check"></i>Fitting the model</a><ul>
+<li class="chapter" data-level="" data-path="05_gam2.html"><a href="05_gam2.html#visualizing-the-effects"><i class="fa fa-check"></i>Visualizing the effects</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="06_issues.html"><a href="06_issues.html"><i class="fa fa-check"></i>Issues</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html"><i class="fa fa-check"></i>Extensions</a><ul>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#extensions-1"><i class="fa fa-check"></i>Extensions</a><ul>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#more-bases"><i class="fa fa-check"></i>More bases</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#interactions"><i class="fa fa-check"></i>Interactions</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#grouped-effects"><i class="fa fa-check"></i>Grouped Effects</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#mixed-models"><i class="fa fa-check"></i>Mixed Models</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#spatial-models"><i class="fa fa-check"></i>Spatial models</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#my-god-its-full-of-stars"><i class="fa fa-check"></i>My God! It’s full of STARs!</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#connections-generalizations"><i class="fa fa-check"></i>Connections &amp; Generalizations</a><ul>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#adaptive-basis-function-models"><i class="fa fa-check"></i>Adaptive Basis Function Models</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#beyond-glm-family-distributions"><i class="fa fa-check"></i>Beyond GLM family distributions</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#extending-random-effects"><i class="fa fa-check"></i>Extending Random Effects</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#gaussian-processes"><i class="fa fa-check"></i>Gaussian Processes</a></li>
+<li class="chapter" data-level="" data-path="07_extensions.html"><a href="07_extensions.html#bayesian"><i class="fa fa-check"></i>Bayesian</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="08_summary.html"><a href="08_summary.html"><i class="fa fa-check"></i>Summary</a></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html"><i class="fa fa-check"></i>Exercises</a><ul>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#exercise-1"><i class="fa fa-check"></i>Exercise 1</a></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#exercise-2"><i class="fa fa-check"></i>Exercise 2</a><ul>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#a"><i class="fa fa-check"></i>2a</a></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#b"><i class="fa fa-check"></i>2b</a></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#c"><i class="fa fa-check"></i>2c</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#exercise-3"><i class="fa fa-check"></i>Exercise 3</a></li>
+<li class="chapter" data-level="" data-path="09_exercises.html"><a href="09_exercises.html#exercise-4"><i class="fa fa-check"></i>Exercise 4</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html"><i class="fa fa-check"></i>Technical details</a><ul>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#gam-introduction"><i class="fa fa-check"></i>GAM Introduction</a><ul>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#penalized-regression"><i class="fa fa-check"></i>Penalized regression</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#a-detailed-example"><i class="fa fa-check"></i>A detailed example</a><ul>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#preview-of-other-bases"><i class="fa fa-check"></i>Preview of other bases</a></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#the-number-of-knots-and-where-to-put-them."><i class="fa fa-check"></i>The number of knots and where to put them.</a></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#interpreting-output-for-smooth-terms"><i class="fa fa-check"></i>Interpreting output for smooth terms</a><ul>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#effective-degrees-of-freedom"><i class="fa fa-check"></i>Effective degrees of freedom</a></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#deviance-explained"><i class="fa fa-check"></i>Deviance explained</a></li>
+<li class="chapter" data-level="" data-path="10_Technical.html"><a href="10_Technical.html#visual-depiction"><i class="fa fa-check"></i>Visual depiction</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="" data-path="100_references.html"><a href="100_references.html"><i class="fa fa-check"></i>References</a></li>
+<li class="divider"></li>
+<li class='after'">
+   <a href="https://m-clark.github.io/">
+      <img src="img/mc_logo.png" style="width:25%; padding:0px 0; display:block; margin: 0 auto;" alt="MC logo">
+   </a>
+</li>
+<li class='after'">
+   <div style='text-align:center'>
+      <a href="https://github.com/m-clark/">
+         <i class="fab fa-github fa-2x" aria-hidden="true"></i>
+      </a>
+   </div>
+</li>
+<li class='after'">
+   <div style='text-align:center'>
+      <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">
+         <i class="fab fa-creative-commons fa-lg"></i> 
+         <i class="fab fa-creative-commons-by fa-lg"></i> 
+         <i class="fab fa-creative-commons-sa fa-lg"></i>
+      </a>
+   </div>
+</li>
+
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./"><span style="font-size:150%">My God! It’s full of STARs!</span> <br> <span style="font-size:50%">Using Astrology to Enhance <em>Your</em> Results!</span></a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="exercises" class="section level1">
+<h1>Exercises</h1>
+<div id="exercise-1" class="section level2">
+<h2>Exercise 1</h2>
+<p><img src="img/helmet.jpg" style="display:block; margin: 0 auto;" width=50%></p>
+<p>Let’s start off with a single covariate. We’ll use the motorcycle data set, which is a data frame giving a series of measurements of head acceleration in a simulated motorcycle accident, used to test crash helmets.</p>
+<ul>
+<li><strong>times</strong>: in milliseconds after impact</li>
+<li><strong>accel</strong>: acceleration in g</li>
+</ul>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">data</span>(<span class="st">&#39;mcycle&#39;</span>, <span class="dt">package=</span><span class="st">&#39;MASS&#39;</span>)</a></code></pre></div>
+<p><img src="stars_files/figure-html/mcycle-1.svg" width="768" style="display: block; margin: auto;" /></p>
+<p>Run a GAM predicting head acceleration by time with time as a smooth term.</p>
+<p>You can plot the result with <span class="pack">visreg</span> as follows. If you haven’t installed it, you’ll need to do so. Otherwise just use the <span class="func">plot</span> function.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="kw">library</span>(visreg)</a>
+<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">visreg</span>(my_gam_model, <span class="dt">partial=</span>F)</a></code></pre></div>
+</div>
+<div id="exercise-2" class="section level2">
+<h2>Exercise 2</h2>
+<div id="htmlwidget-02064d1f1d736845648e" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-02064d1f1d736845648e">{"x":{"style":"bootstrap","filter":"none","caption":"<caption>Top 20 most expensive movies (up until 2005)<\/caption>","data":[["Cleopatra","Titanic","Waterworld","Spider-Man 2","Wild Wild West","Troy","Terminator 3: Rise of the Machines","Tarzan","Armageddon","Lethal Weapon 4","Van Helsing","Superman","Master and Commander: The Far Side of the World","World Is Not Enough, The","Alexander","Polar Express, The","Die Another Day","Men in Black II","Treasure Planet","Final Fantasy: The Spirits Within"],[1963,1997,1995,2004,1999,2004,2003,1999,1998,1998,2004,1978,2003,1999,2004,2004,2002,2002,2002,2001],[44,200,175,200,170,185,175,150,140,140,160,55,150,135,150,150,142,140,140,137],[345,299,276,254,245,235,228,216,206,206,203,202,196,195,191,191,189,187,187,186],[6.6,6.9,5.4,7.9,4,7.1,6.9,7.1,5.7,6.3,5.4,7.1,7.5,6.3,5.5,6.8,6.4,5.6,6.6,6.5]],"container":"<table class=\"table table-striped table-hover\">\n  <thead>\n    <tr>\n      <th>title<\/th>\n      <th>year<\/th>\n      <th>budget<\/th>\n      <th>budget_2016<\/th>\n      <th>rating<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"dom":"tp","columnDefs":[{"className":"dt-right","targets":[1,2,3,4]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Next we’ll use a the yearly movie data consisting of the following variables.</p>
+<ul>
+<li><strong>year</strong>: Year of release.</li>
+<li><strong>budget_2016</strong>: Average budget in millions 2016 US dollars</li>
+<li><strong>length</strong>: Average length in minutes.</li>
+<li><strong>rating</strong>: Average IMDB user rating.</li>
+<li><strong>votes</strong>: Average number of IMDB users who rated movies that year, in thousands.</li>
+<li><strong>N</strong>: The number of movies that went into the averaging.</li>
+</ul>
+<div id="a" class="section level3">
+<h3>2a</h3>
+<p>Run an <span class="func">lm/glm</span> with <code>budget_2016</code> as the target and your choice of covariates. Here is some starter code.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1"><span class="kw">load</span>(<span class="st">&#39;data/movies_yearly.RData&#39;</span>)</a>
+<a class="sourceLine" id="cb21-2" data-line-number="2">mod_glm =<span class="st"> </span><span class="kw">glm</span>(budget_<span class="dv">2016</span> <span class="op">~</span><span class="st"> </span>x <span class="op">+</span><span class="st"> </span>z, <span class="dt">data=</span>movies_yearly)</a></code></pre></div>
+</div>
+<div id="b" class="section level3">
+<h3>2b</h3>
+<p>Run an <span class="func">gam</span> with the same model but no smooth terms (i.e. just change the function to <span class="func">gam</span>)</p>
+</div>
+<div id="c" class="section level3">
+<h3>2c</h3>
+<p>Now run a <span class="func">gam</span> with any smooth terms you care to. What is your interpretation of the results?</p>
+</div>
+</div>
+<div id="exercise-3" class="section level2">
+<h2>Exercise 3</h2>
+<p><img src="img/cobra.jpg" style="display:block; margin: 0 auto;" width=75%></p>
+<p>Use the <span class="objclass">movies_yearly_action</span> data. This data is the same as the yearly data, but broken out into whether the movie was categorized as being and Action flick (possibly in combination of another genre) or Other. Run a GAM where the outcome is budget in millions of 2016 dollars.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="co"># If you haven&#39;t already, load the data as in exercise 2</span></a>
+<a class="sourceLine" id="cb22-2" data-line-number="2">gam_model_byAction =<span class="st"> </span><span class="kw">gam</span>(budget_<span class="dv">2016</span> <span class="op">~</span><span class="st">  </span><span class="kw">s</span>(year, <span class="dt">by=</span>Action) <span class="op">+</span><span class="st"> </span>Action <span class="op">+</span><span class="st"> </span>votes <span class="op">+</span><span class="st"> </span>length, </a>
+<a class="sourceLine" id="cb22-3" data-line-number="3">                         <span class="dt">data=</span>movies_yearly_action)</a></code></pre></div>
+<p>Plot the result with visreg as follows.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">visreg<span class="op">::</span><span class="kw">visreg</span>(gam_model_byAction, <span class="dt">xvar=</span><span class="st">&#39;year&#39;</span>, <span class="dt">by=</span><span class="st">&#39;Action&#39;</span>, </a>
+<a class="sourceLine" id="cb23-2" data-line-number="2">               <span class="dt">overlay=</span>T, <span class="dt">partial=</span>F)</a></code></pre></div>
+<p>What trends do you see? Is the yearly trend the same for action movies vs other movies? Do you think both trends should be allowed to ‘wiggle’?</p>
+</div>
+<div id="exercise-4" class="section level2">
+<h2>Exercise 4</h2>
+<p><img src="img/lakes.jpg" style="display:block; margin: 0 auto;"></p>
+<p>Keep it local with the following Great Lakes data set<a href="#fn13" class="footnote-ref" id="fnref13"><sup>13</sup></a>. The following model uses a Gaussian process smooth for year and a p-spline for the monthly effect, both by the corresponding lake. Try increasing k for the year effect, and with <code>bs='cp'</code> (a cyclic p-spline) for the month effect. Do you think using the cyclic option, where the endpoints are equal, was viable approach?</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb24-1" data-line-number="1"><span class="kw">load</span>(<span class="st">&#39;data/greatLakes.RData&#39;</span>)</a>
+<a class="sourceLine" id="cb24-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb24-3" data-line-number="3">gam_monthly_cycle =<span class="st"> </span><span class="kw">gam</span>(meters<span class="op">*</span><span class="dv">10</span> <span class="op">~</span><span class="st"> </span>lake <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(year, <span class="dt">by=</span>lake, <span class="dt">bs=</span><span class="st">&#39;gp&#39;</span>, <span class="dt">k=</span><span class="dv">10</span>) </a>
+<a class="sourceLine" id="cb24-4" data-line-number="4">                        <span class="op">+</span><span class="st"> </span><span class="kw">s</span>(month_num, <span class="dt">bs=</span><span class="st">&#39;ps&#39;</span>, <span class="dt">by=</span>lake), <span class="dt">data=</span>lakes)</a>
+<a class="sourceLine" id="cb24-5" data-line-number="5"><span class="co"># summary(gam_monthly_cycle)</span></a>
+<a class="sourceLine" id="cb24-6" data-line-number="6">monthpd =<span class="st"> </span><span class="kw">visreg</span>(gam_monthly_cycle, <span class="dt">xvar=</span><span class="st">&#39;month_num&#39;</span>, <span class="dt">by=</span><span class="st">&#39;lake&#39;</span>, <span class="dt">overlay=</span>T, <span class="dt">plot=</span>F)<span class="op">$</span>fit</a>
+<a class="sourceLine" id="cb24-7" data-line-number="7">yearpd =<span class="st"> </span><span class="kw">visreg</span>(gam_monthly_cycle, <span class="dt">xvar=</span><span class="st">&#39;year&#39;</span>, <span class="dt">by=</span><span class="st">&#39;lake&#39;</span>, <span class="dt">overlay=</span>T, <span class="dt">plot=</span>F)<span class="op">$</span>fit</a>
+<a class="sourceLine" id="cb24-8" data-line-number="8"></a>
+<a class="sourceLine" id="cb24-9" data-line-number="9">monthpd <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb24-10" data-line-number="10"><span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-11" data-line-number="11"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x=</span>month_num, <span class="dt">y=</span>visregFit)) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-12" data-line-number="12"><span class="st">  </span><span class="kw">scale_x_continuous</span>(<span class="dt">breaks=</span><span class="dv">1</span><span class="op">:</span><span class="dv">12</span>, <span class="dt">labels=</span>month.abb) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-13" data-line-number="13"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>lake, <span class="dt">scales=</span><span class="st">&#39;free_y&#39;</span>) <span class="op">+</span></a>
+<a class="sourceLine" id="cb24-14" data-line-number="14"><span class="st">  </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle=</span><span class="op">-</span><span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">0</span>))</a></code></pre></div>
+<p><img src="stars_files/figure-html/greatLakes-1.svg" width="768" style="display: block; margin: auto;" /></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">yearpd <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="st">  </span><span class="kw">ggplot</span>() <span class="op">+</span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="st">  </span><span class="kw">geom_line</span>(<span class="kw">aes</span>(<span class="dt">x=</span>year, <span class="dt">y=</span>visregFit)) <span class="op">+</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="st">  </span><span class="kw">facet_wrap</span>(<span class="op">~</span>lake, <span class="dt">scales=</span><span class="st">&#39;free_y&#39;</span>)</a></code></pre></div>
+<p><img src="stars_files/figure-html/greatLakes-2.svg" width="768" style="display: block; margin: auto;" /></p>
+
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="13">
+<li id="fn13"><p>Lake data from <a href="http://www.lre.usace.army.mil/Missions/Great-Lakes-Information/Great-Lakes-Water-Levels/Historical-Data/" class="uri">http://www.lre.usace.army.mil/Missions/Great-Lakes-Information/Great-Lakes-Water-Levels/Historical-Data/</a>. Note that in the exercise we model the water level in decimeters.<a href="09_exercises.html#fnref13" class="footnote-back">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="08_summary.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="10_Technical.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+gitbook.require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": false,
+"twitter": false,
+"google": false,
+"linkedin": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["twitter", "facebook", "google", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": null,
+"download": null,
+"toc": {
+"collapse": "section",
+"depth": 2,
+"scroll_highlight": true
+},
+"search": true
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    var src = "true";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

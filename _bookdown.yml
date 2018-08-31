@@ -1,4 +1,6 @@
 book_filename: "stars"
 language:
   ui:
-    chapter_name: "Chapter "
+    chapter_name: 'Chapter '
+output_dir: 'docs'
+delete_merged_file: true
