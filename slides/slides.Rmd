@@ -1,0 +1,107 @@
+---
+title: "<span style='font-size:150%'>My God! <br> It's full of STARs!</span> <br> "
+subtitle: Using Astrology to <br> Enhance <span style='text-decoration:underline'>*Your*</span> Results!
+output: 
+  xaringan::moon_reader:
+    css: [default, xaringan-themer.css, slides.css]  # xaringan can't find relative/project directory
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+```{r setup, include=FALSE, eval=TRUE}
+knitr::opts_chunk$set(echo = F, message=F, warning=F, comment=NA, autodep=F, eval=T, cache.rebuild=F, cache=F,
+                      R.options=list(width=120), fig.width=8, fig.align = 'center',
+                      out.width = '100%', fig.asp=.75)
+```
+
+```{r load_common_packages, echo=FALSE, cache=FALSE, eval=TRUE}
+library(plotly); library(hrbrthemes); library(lazerhawk); library(visibly); library(modelr)
+library(mgcv); library(broom); library(pander); library(modelr); library(tidyverse); library(kableExtra)
+
+kable_styling = function(...) kable_styling(full_width = F, ...)
+```
+
+```{r xaringan-themer, include=FALSE}
+library(xaringanthemer)
+solarized_dark(
+  # code_font_family = "Fira Code",
+  # code_font_url    = "https://cdn.rawgit.com/tonsky/FiraCode/1.204/distr/fira_code.css"
+)
+```
+
+
+# **ST**ructured <br> **A**dditive <br> **R**egression Models
+
+How would you model a relationship such as this?
+
+
+```{r init_problem}
+set.seed(123)
+x = runif(500)
+mu = sin(2*(4*x-2)) + 2*exp(-(16^2)*((x-.5)^2))
+y = rnorm(500, mu, .3)
+d = data.frame(x,y) 
+
+plot_ly(data=d) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.5)) %>% 
+  theme_blank()
+```
+
+---
+
+# Polynomial Regression
+
+
+```{r try_poly}
+fits = sapply(seq(3,15, 3), function(p) fitted(lm(y~poly(x,p)))) %>% 
+  data.frame(x, y, .) %>% 
+  gather(key=polynomial, value=fits, -x, -y) %>% 
+  mutate(polynomial = factor(polynomial, labels=seq(3,15, 3)))
+
+
+plot_ly(width=700, data=d) %>% 
+  add_markers(~x, ~y, marker=list(color='#ff5500', opacity=.1), showlegend=F) %>% 
+  add_lines(~x, ~fits, color=~polynomial, data=fits) %>% 
+  theme_blank()
+```
+
+ 
+
+Perhaps not...
+
+
+
+---
+
+# How does polynomial regression work?
+
+
+```{r polycolumns}
+data_frame(
+  x = 1:6
+) %>% 
+  mutate(`x_sq` = x^2,
+         `x_cubed` = x^3) %>% 
+  kable() %>%
+  row_spec(row = 0, background = '#F2F2F2FF') %>% 
+  row_spec(row = 1:6, background = '#FCFCFCFF')
+  
+```
+
+---
+
+#
+
+
+```{r}
+d = data_frame(
+  x = 1:6
+)
+
+smoothCon(s(x,k=4),data=d)[[1]]$X
+```
+
