@@ -1,5 +1,6 @@
 ---
-title: "<span style='font-size:150%'>My God! It's full of STARs!</span> <br> <span style='font-size:50%'>Using Astrology to Enhance *Your* Results!</span>"
+title: "<span style='font-size:150%'>My God! It's full of STARs!</span> <br> "
+subtitle: <span class='noem'>Using Astrology to Enhance *Your* Results!</span>
 author:  |
   <span class="noem">Michael Clark</span>
   https://m-clark.github.io/

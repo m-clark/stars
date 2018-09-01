@@ -4,3 +4,20 @@ language:
     chapter_name: 'Chapter '
 output_dir: 'docs'
 delete_merged_file: true
+
+rmd_files: [
+  "index.Rmd",
+
+  "01_intro.Rmd",
+  '02_lm.Rmd',
+  '03_poly.Rmd',
+  '04_gam1.Rmd',
+  '04_gam1.Rmd',
+  '05_gam2.Rmd',
+  '06_issues.Rmd',
+  
+  '08_summary.Rmd',
+  '09_exercises.Rmd',
+  '10_Technical.Rmd',
+  "100_references.Rmd"
+]

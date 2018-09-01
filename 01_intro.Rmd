@@ -2,7 +2,7 @@
 # Preface
 
 
-This talk/workshop provides a brief introduction to <span class="emph">generalized additive models</span> (GAMs), or even more generally, or <span class="emph">structured additive regression</span> models (STARs).  They offer a natural extension to common generalized linear models, while having the flexibility to incorporate a wide range of modeling situations.
+This set of notes is for a talk/workshop that provides a brief introduction to <span class="emph">generalized additive models</span> (GAMs), or even more generally, or <span class="emph">structured additive regression</span> models (STARs).  They offer a natural extension to common generalized linear models, while having the flexibility to incorporate a wide range of modeling situations.
 
 ## Audience
 

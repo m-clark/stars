@@ -1,6 +1,6 @@
 # Technical details
 
-Workshops see all types of folks at different levels. This is for some of the more technically inclined, though you'll find more context and detail in [my document](https://m-clark.github.io/docs/GAM.html) and Wood (2006), from which a good chunk of this section is taken more or less directly from.
+Workshops see all types of folks at different levels. This is for some of the more technically inclined, though you'll find more context and detail in [my document](https://m-clark.github.io/generalized-additive-models) and Wood (2006, 2017), from which a good chunk of this section is taken more or less directly from.
 
 ## GAM Introduction
 
